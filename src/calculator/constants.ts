@@ -10,6 +10,14 @@ export const PRICES = {
 } as const;
 
 /**
+ * Fix áras extrák (Ft / darab).
+ */
+export const EXTRA_PRICES = {
+  ajto: 15000, // ajtók mázolása Ft/db
+  radiator: 10000, // radiátorok festése Ft/db
+} as const;
+
+/**
  * Falállapot választó opciók a szorzókkal.
  */
 export const CONDITION_OPTIONS: ConditionOption[] = [
@@ -47,7 +55,6 @@ export const DEFAULT_ROOM = {
   width: 4,
   length: 5,
   height: 2.7,
-  paintCeiling: true,
 } as const;
 
 /** Forint formázás ezres tagolással. */

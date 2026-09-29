@@ -13,6 +13,14 @@ export interface ConditionOption {
   alt: string;
 }
 
+/** Fix áras extra tételek (darabszám-alapú). */
+export interface RoomExtras {
+  /** Ajtók mázolása (db). */
+  doors: number;
+  /** Radiátorok festése (db). */
+  radiators: number;
+}
+
 export interface Room {
   id: string;
   name: string;
@@ -20,20 +28,32 @@ export interface Room {
   width: number;
   length: number;
   height: number;
-  /** Mennyezet festését is kérik-e. */
-  paintCeiling: boolean;
+  /** Van-e eltávolítandó tapéta (a rajz csak ekkor jelenik meg). */
+  hasWallpaper: boolean;
   /** Azok a falak, ahonnan tapétát kell eltávolítani. */
   wallpaperWalls: WallId[];
   condition: ConditionId;
+  /** Fix áras extrák. */
+  extras: RoomExtras;
 }
 
 /** Egy szoba részletes költségbontása. */
 export interface RoomCost {
+  /** Fal + mennyezet együttes festendő felülete (m²). */
+  paintableArea: number;
   wallArea: number;
   ceilingArea: number;
   wallpaperArea: number;
-  wallPaintCost: number;
-  ceilingPaintCost: number;
+  /** Falállapot szorzó (pl. 1, 1.5, 2.2). */
+  conditionMultiplier: number;
+  /** Festés költsége az állapotszorzóval együtt. */
+  paintCost: number;
+  /** Csak a szorzó miatti felár (paintCost - alapköltség). */
+  conditionSurcharge: number;
   wallpaperRemovalCost: number;
+  /** Ajtók + radiátorok együttes fix költsége. */
+  extrasCost: number;
+  doorsCost: number;
+  radiatorsCost: number;
   total: number;
 }
