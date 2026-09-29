@@ -66,45 +66,44 @@ export default function WallDiagram({ room, onToggleWall }: Props) {
     const iT = y0 + t; // belső fel
     const iB = y1 - t; // belső le
 
-    // A KÜLSŐ sarok a szoba sarkából induló 45°-os átlón fekszik; a gap ezt
-    // az átlót kicsit kijjebb tolja, hogy maradjon egy szimmetrikus rés.
-    // A vágott él a külső sarokból a belső él felé pontosan 45°-ban fut:
-    // a külső és belső vég közti eltolás mindkét tengelyen `stroke` (= 2t),
-    // ezért |dx| == |dy| (valódi 45°), és a szomszédos falak vágott élei
-    // ugyanarra a 45°-os átlóra esnek -> párhuzamosak / egy vonalba simulnak.
-    const s = stroke; // = 2t, az él-eltolás a 45°-os vágáshoz
-    const o = t + gap; // a külső sarok behúzása a sarok átlója mentén
+    // A falszakaszok KÜLSŐ éle a teljes külső sarokig (oL..oR / oT..oB) ér,
+    // így a szomszédos falak külső végei pontosan a külső sarokban találkoznak
+    // (gap=0 -> nincs rés). A BELSŐ él a külső sarokból 45°-ban behúzva fut a
+    // belső élig: dx és dy egyaránt `stroke` (= 2t), ezért |dx| == |dy| valódi
+    // 45°-os gérvágás, és a két szomszédos vágott él egy közös átlóra simul.
+    // A `gap` opcionálisan hagy egy kicsi, szimmetrikus rést a sarkoknál.
+    const g = gap;
 
     const pts = (arr: number[][]) => arr.map((p) => p.join(',')).join(' ');
 
     switch (w) {
       case 'top':
         return pts([
-          [x0 + o, oT], // külső él bal vége
-          [x1 - o, oT], // külső él jobb vége
-          [x1 - o - s, iT], // belső él jobb vége -> 45°
-          [x0 + o + s, iT], // belső él bal vége -> 45°
+          [oL + g, oT], // külső él bal vége (külső sarok)
+          [oR - g, oT], // külső él jobb vége (külső sarok)
+          [iR - g, iT], // belső él jobb vége -> 45°
+          [iL + g, iT], // belső él bal vége -> 45°
         ]);
       case 'bottom':
         return pts([
-          [x1 - o, oB],
-          [x0 + o, oB],
-          [x0 + o + s, iB],
-          [x1 - o - s, iB],
+          [oR - g, oB],
+          [oL + g, oB],
+          [iL + g, iB],
+          [iR - g, iB],
         ]);
       case 'right':
         return pts([
-          [oR, y0 + o],
-          [oR, y1 - o],
-          [iR, y1 - o - s],
-          [iR, y0 + o + s],
+          [oR, oT + g],
+          [oR, oB - g],
+          [iR, iB - g],
+          [iR, iT + g],
         ]);
       case 'left':
         return pts([
-          [oL, y1 - o],
-          [oL, y0 + o],
-          [iL, y0 + o + s],
-          [iL, y1 - o - s],
+          [oL, oB - g],
+          [oL, oT + g],
+          [iL, iT + g],
+          [iL, iB - g],
         ]);
     }
   };
