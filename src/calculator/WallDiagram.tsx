@@ -27,7 +27,7 @@ const WALLPAPER_COLOR = '#f97316'; // orange-500
 export default function WallDiagram({ room, onToggleWall }: Props) {
   const vb = 300;
   const margin = 46; // hely a badge-eknek a falakon kívül
-  const gap = 0; // a falvégek a sarok átlóján érnek össze (minimális rés)
+  const gap = 3; // szándékos rés a sarkoknál, ami elkülöníti a 4 szakaszt
   const stroke = 11; // falvastagság (keskenyebb, 3D-szerű hatás)
 
   // A rajz arányos a szoba méreteivel, de belefér a keretbe.
