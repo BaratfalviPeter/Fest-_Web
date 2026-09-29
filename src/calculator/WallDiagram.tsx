@@ -46,47 +46,66 @@ export default function WallDiagram({ room, onToggleWall }: Props) {
 
   const t = stroke / 2; // falvastagság fele (a középvonaltól kifelé/befelé)
 
-  // Minden falat vastag, 45°-ban gérvágott végű poligonként rajzolunk.
-  // A "gap" a sarkokban látható szándékos rés, ami elkülöníti a 4 szakaszt.
-  // A pontok a fal külső és belső élét követik, a végeken 45°-os vágással.
+  // Minden falat vastag, valódi 45°-ban gérvágott végű poligonként rajzolunk.
+  //
+  // A gérvágás kulcsa: a külső és a belső él vége UGYANAKKORA mértékben (t)
+  // tolódik el a vágás mentén, így a vágott él pontosan 45°-os. Ráadásul két
+  // szomszédos fal vágott éle a szoba sarkából induló KÖZÖS 45°-os átlóra esik,
+  // ezért párhuzamosak (valójában egy egyenesbe simulnak).
+  //
+  // A "gap" a sarok átlója mentén húzza kissé kijjebb a vágást, hogy maradjon
+  // egy kicsi, szimmetrikus rés a négy szakasz között.
   const wallPolygon = (w: WallId): string => {
+    // Külső és belső téglalap-sarkok.
+    const oL = x0 - t; // külső bal
+    const oR = x1 + t; // külső jobb
+    const oT = y0 - t; // külső fel
+    const oB = y1 + t; // külső le
+    const iL = x0 + t; // belső bal
+    const iR = x1 - t; // belső jobb
+    const iT = y0 + t; // belső fel
+    const iB = y1 - t; // belső le
+
+    // A KÜLSŐ sarok a szoba sarkából induló 45°-os átlón fekszik; a gap ezt
+    // az átlót kicsit kijjebb tolja, hogy maradjon egy szimmetrikus rés.
+    // A vágott él a külső sarokból a belső él felé pontosan 45°-ban fut:
+    // a külső és belső vég közti eltolás mindkét tengelyen `stroke` (= 2t),
+    // ezért |dx| == |dy| (valódi 45°), és a szomszédos falak vágott élei
+    // ugyanarra a 45°-os átlóra esnek -> párhuzamosak / egy vonalba simulnak.
+    const s = stroke; // = 2t, az él-eltolás a 45°-os vágáshoz
+    const o = t + gap; // a külső sarok behúzása a sarok átlója mentén
+
+    const pts = (arr: number[][]) => arr.map((p) => p.join(',')).join(' ');
+
     switch (w) {
       case 'top':
-        return [
-          [x0 + gap, y0 - t],
-          [x1 - gap, y0 - t],
-          [x1 - gap - t, y0 + t],
-          [x0 + gap + t, y0 + t],
-        ]
-          .map((p) => p.join(','))
-          .join(' ');
+        return pts([
+          [x0 + o, oT], // külső él bal vége
+          [x1 - o, oT], // külső él jobb vége
+          [x1 - o - s, iT], // belső él jobb vége -> 45°
+          [x0 + o + s, iT], // belső él bal vége -> 45°
+        ]);
       case 'bottom':
-        return [
-          [x1 - gap, y1 + t],
-          [x0 + gap, y1 + t],
-          [x0 + gap + t, y1 - t],
-          [x1 - gap - t, y1 - t],
-        ]
-          .map((p) => p.join(','))
-          .join(' ');
+        return pts([
+          [x1 - o, oB],
+          [x0 + o, oB],
+          [x0 + o + s, iB],
+          [x1 - o - s, iB],
+        ]);
       case 'right':
-        return [
-          [x1 + t, y0 + gap],
-          [x1 + t, y1 - gap],
-          [x1 - t, y1 - gap - t],
-          [x1 - t, y0 + gap + t],
-        ]
-          .map((p) => p.join(','))
-          .join(' ');
+        return pts([
+          [oR, y0 + o],
+          [oR, y1 - o],
+          [iR, y1 - o - s],
+          [iR, y0 + o + s],
+        ]);
       case 'left':
-        return [
-          [x0 - t, y1 - gap],
-          [x0 - t, y0 + gap],
-          [x0 + t, y0 + gap + t],
-          [x0 + t, y1 - gap - t],
-        ]
-          .map((p) => p.join(','))
-          .join(' ');
+        return pts([
+          [oL, y1 - o],
+          [oL, y0 + o],
+          [iL, y0 + o + s],
+          [iL, y1 - o - s],
+        ]);
     }
   };
 
