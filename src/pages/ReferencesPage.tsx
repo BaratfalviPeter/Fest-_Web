@@ -1,26 +1,17 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { GALLERY, BEFORE_AFTER } from '../data/content';
 import { SITE } from '../data/site';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import LightboxGallery from '../components/LightboxGallery';
+import FunnelCta from '../components/FunnelCta';
 
 export default function ReferencesPage() {
-  const navigate = useNavigate();
-
   // Aloldalra lépéskor görgessünk a tetejére.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // A főoldali árkalkulátorhoz navigálás + görgetés.
-  const goToCalculator = () => {
-    navigate('/');
-    window.setTimeout(() => {
-      document.getElementById('kalkulator')?.scrollIntoView({ behavior: 'smooth' });
-    }, 60);
-  };
 
   return (
     <main>
@@ -63,8 +54,8 @@ export default function ReferencesPage() {
           <LightboxGallery images={GALLERY} />
         </div>
 
-        {/* Navigáció + CTA */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-10 sm:flex-row">
+        {/* Vissza a főoldalra */}
+        <div className="mt-16 border-t border-gray-100 pt-10 text-center">
           <Link
             to="/"
             className="inline-flex items-center gap-2 font-semibold text-primary hover:text-primary-dark"
@@ -72,12 +63,15 @@ export default function ReferencesPage() {
             <ArrowLeft className="h-5 w-5" />
             Vissza a főoldalra
           </Link>
-          <button type="button" onClick={goToCalculator} className="btn-accent">
-            Kérjen ajánlatot
-            <ArrowRight className="h-5 w-5" />
-          </button>
         </div>
       </div>
+
+      {/* Sales funnel: tovább a Színtervezőhöz */}
+      <FunnelCta
+        title="Inspirálódott? Tervezze meg saját falait a Színtervezővel!"
+        buttonLabel="Irány a Színtervező"
+        to="/szintervezo"
+      />
     </main>
   );
 }

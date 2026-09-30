@@ -1,5 +1,5 @@
 import { useMemo, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, Check, Palette, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Palette } from 'lucide-react';
 import {
   SPACE_TABS,
   SCENE_IMAGES,
@@ -93,9 +93,6 @@ export default function ColorVisualizer() {
   const nextImage = () =>
     setImageIndex((i) => (images.length ? (i + 1) % images.length : 0));
 
-  const goToCalculator = () =>
-    document.getElementById('kalkulator')?.scrollIntoView({ behavior: 'smooth' });
-
   // Közös CSS maszk-beállítás a szín- és a fény-réteghez (ugyanaz a falmaszk).
   // A base <img> object-cover-jével egyező cover/center vágás; azonos méret
   // miatt pixelpontos illeszkedés.
@@ -113,27 +110,13 @@ export default function ColorVisualizer() {
     : {};
 
   return (
-    <section id="szintervezo" className="bg-white py-20 lg:py-28">
+    <section id="szintervezo" className="bg-white py-14 lg:py-16">
       {/* Rejtett SVG textúra-filter (kódból generált monokróm zaj) */}
       <PlasterTextureFilter />
 
       <div className="section-container">
-        {/* Fejléc */}
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold uppercase tracking-wider text-accent">
-            Próbálja ki online
-          </span>
-          <h2 className="mt-2 flex items-center justify-center gap-3 text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            <Palette className="h-8 w-8 text-primary" />
-            Interaktív Színtervező
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Válasszon teret, márkát és színt – és nézze meg azonnal, hogyan mutatna otthonában.
-          </p>
-        </div>
-
         {/* Tér választó tabok */}
-        <div className="mx-auto mt-8 flex max-w-md rounded-xl bg-gray-100 p-1" role="tablist" aria-label="Tér választó">
+        <div className="mx-auto flex max-w-md rounded-xl bg-gray-100 p-1" role="tablist" aria-label="Tér választó">
           {SPACE_TABS.map((tab) => {
             const active = tab.id === category;
             return (
@@ -362,14 +345,6 @@ export default function ColorVisualizer() {
               árnyalattól.
             </p>
           </div>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <button onClick={goToCalculator} className="btn-accent text-lg">
-            Megvan az álomszín? Kérjen rá árajánlatot!
-            <ArrowRight className="h-5 w-5" />
-          </button>
         </div>
       </div>
     </section>
