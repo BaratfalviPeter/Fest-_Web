@@ -7,15 +7,18 @@ import {
   type ColorCategory,
   type PaintColor,
 } from '../data/colors';
-import { PLASTER_TEXTURES, type PlasterTextureId } from '../data/textures';
 
 /**
- * Rejtett SVG a vakolat-textúrák <filter> definícióival.
- * Minden filter kizárólag kódból generált (feTurbulence / feDisplacementMap),
- * nincs külső képfájl. A ColorVisualizer a maszkolt színrétegre CSS
- * filter: url(#id) révén osztja ki ezeket.
+ * Rejtett SVG a kültéri „kapart vakolat" textúrához – egyetlen, univerzális,
+ * SZIGORÚAN MONOKRÓM zaj (kódból generált, nincs képfájl).
+ *
+ * A filter maga rajzolja a zajt (nem a SourceGraphic-ot dolgozza fel), és a
+ * feColorMatrix-szal fekete + változó alfa csatornává alakítja: nincs
+ * színinformáció, így NEM módosítja a falfesték szaturációját. A réteget
+ * multiply + alacsony opacity-vel visszük a színre -> csak apró, sötét
+ * mikro-árnyékokat (a vakolat gödröcskéit) ad hozzá.
  */
-function PlasterFilters() {
+function PlasterTextureFilter() {
   return (
     <svg
       aria-hidden="true"
@@ -23,57 +26,29 @@ function PlasterFilters() {
       style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }}
     >
       <defs>
-        {/* Kapart / szemcsés: finom, egyenletes zaj – azonos X és Y baseFrequency. */}
-        <filter id="plaster-scraped" x="0%" y="0%" width="100%" height="100%">
+        <filter id="plaster-grain" x="0%" y="0%" width="100%" height="100%">
+          {/* Egyenletes, kissé durvább szemcse – azonos X/Y baseFrequency. */}
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.9 0.9"
+            baseFrequency="0.16 0.16"
             numOctaves={2}
             seed={7}
             stitchTiles="stitch"
             result="noise"
           />
-          {/* A zajt a forrás fényerejéhez keverjük, hogy szemcsés struktúrát adjon. */}
-          <feColorMatrix in="noise" type="saturate" values="0" result="grain" />
-          <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
-        </filter>
-
-        {/* Húzott: irányított, vonalas barázdák – aszimmetrikus baseFrequency,
-            így a zaj vízszintes csíkokká nyúlik (kavicshúzás imitálása). */}
-        <filter id="plaster-dragged" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.012 0.6"
-            numOctaves={2}
-            seed={11}
-            stitchTiles="stitch"
-            result="noise"
+          {/*
+            Monokróm konverzió: minden RGB csatorna 0 (fekete), az ALFA a zaj
+            luminanciájából jön (utolsó sor R,G,B súlyok). Így fekete pöttyök
+            változó átlátszósággal, SEMMI szín -> nem torzítja a tónust.
+          */}
+          <feColorMatrix
+            in="noise"
+            type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0.6 0.3 0.1 0 0"
           />
-          <feColorMatrix in="noise" type="saturate" values="0" result="lines" />
-          <feBlend in="SourceGraphic" in2="lines" mode="multiply" />
-        </filter>
-
-        {/* Körkörös dörzsölt: turbulencia + elmozdítás -> örvénylő eldolgozás. */}
-        <filter id="plaster-circular" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence
-            type="turbulence"
-            baseFrequency="0.03 0.03"
-            numOctaves={3}
-            seed={4}
-            stitchTiles="stitch"
-            result="swirl"
-          />
-          <feColorMatrix in="swirl" type="saturate" values="0" result="swirlGray" />
-          {/* Enyhe elmozdítás a körkörös, kézzel dörzsölt hatásért. */}
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="swirlGray"
-            scale="6"
-            xChannelSelector="R"
-            yChannelSelector="G"
-            result="displaced"
-          />
-          <feBlend in="displaced" in2="swirlGray" mode="multiply" />
         </filter>
       </defs>
     </svg>
@@ -90,8 +65,6 @@ export default function ColorVisualizer() {
   const [brandId, setBrandId] = useState<string>(brands[0]?.id ?? '');
   // Kiválasztott szín.
   const [selected, setSelected] = useState<PaintColor | null>(brands[0]?.colors[0] ?? null);
-  // Kiválasztott vakolat-textúra (csak kültéri nézetben releváns).
-  const [textureId, setTextureId] = useState<PlasterTextureId>('none');
 
   const images = SCENE_IMAGES[category];
   const activeBrand = brands.find((b) => b.id === brandId) ?? brands[0];
@@ -106,11 +79,7 @@ export default function ColorVisualizer() {
     setImageIndex(0);
     setBrandId(nextBrands[0]?.id ?? '');
     setSelected(nextBrands[0]?.colors[0] ?? null);
-    setTextureId('none'); // új tér -> alapból sima felület
   };
-
-  // Az aktív textúra metaadatai (blend, opacity, filterId).
-  const activeTexture = PLASTER_TEXTURES.find((t) => t.id === textureId) ?? PLASTER_TEXTURES[0];
 
   const changeBrand = (id: string) => {
     setBrandId(id);
@@ -144,8 +113,8 @@ export default function ColorVisualizer() {
 
   return (
     <section id="szintervezo" className="bg-white py-20 lg:py-28">
-      {/* Rejtett SVG textúra-filterek (kódból generált, nincs képfájl) */}
-      <PlasterFilters />
+      {/* Rejtett SVG textúra-filter (kódból generált monokróm zaj) */}
+      <PlasterTextureFilter />
 
       <div className="section-container">
         {/* Fejléc */}
@@ -243,20 +212,20 @@ export default function ColorVisualizer() {
                           }}
                         />
 
-                        {/* 3) TEXTÚRA-RÉTEG (csak kültéren, ha van kiválasztott textúra):
-                            kódból generált SVG filter adja a vakolat struktúráját.
-                            A falmaszk a falra korlátozza; a finom blend + alacsony
-                            opacity miatt nem sötétíti túl a festéket. */}
-                        {category === 'exterior' && activeTexture.filterId && (
+                        {/* 3) VAKOLAT-TEXTÚRA (csak kültéren): univerzális, monokróm
+                            „kapart vakolat" zaj. A filter maga rajzolja a fekete
+                            (alfás) szemcsét – NINCS szín, így nem torzítja a
+                            festék tónusát. multiply + alacsony opacity -> csak
+                            apró, sötét mikro-árnyékok (a vakolat gödröcskéi).
+                            A falmaszk a falra korlátozza. */}
+                        {category === 'exterior' && (
                           <div
                             aria-hidden="true"
                             className="pointer-events-none absolute inset-0"
                             style={{
-                              backgroundColor: selected.hex,
-                              filter: `url(#${activeTexture.filterId})`,
-                              mixBlendMode: activeTexture.blend,
-                              opacity: activeTexture.opacity,
-                              transition: 'opacity 0.4s ease-in-out',
+                              filter: 'url(#plaster-grain)',
+                              mixBlendMode: 'multiply',
+                              opacity: 0.2,
                               ...maskStyle,
                               zIndex: 12,
                             }}
@@ -346,35 +315,6 @@ export default function ColorVisualizer() {
                 </option>
               ))}
             </select>
-
-            {/* Vakolat textúra választó – KIZÁRÓLAG kültéri nézetben */}
-            {category === 'exterior' && (
-              <div className="mt-5">
-                <span className="mb-1.5 block text-sm font-medium text-gray-700">
-                  Vakolat textúrája
-                </span>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Vakolat textúrája">
-                  {PLASTER_TEXTURES.map((tex) => {
-                    const active = tex.id === textureId;
-                    return (
-                      <button
-                        key={tex.id}
-                        type="button"
-                        onClick={() => setTextureId(tex.id)}
-                        aria-pressed={active}
-                        className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                          active
-                            ? 'border-primary bg-primary text-white shadow-sm'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-primary/50 hover:bg-gray-50'
-                        }`}
-                      >
-                        {tex.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Kiválasztott szín neve, nagy betűvel */}
             <div className="mt-6">
