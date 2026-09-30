@@ -1,31 +1,34 @@
 import type { ConditionOption } from './types';
+import { PRICING } from '../config/pricing';
 
 /**
- * Árak (Ft / m²). A számítás egésze innen olvas – itt módosíthatók az egységárak.
+ * Árak (Ft / m²) – a központi árkonfigurációból (src/config/pricing.ts).
+ * A számokat OTT módosítsd, ne itt.
  */
 export const PRICES = {
-  alapFestes: 1500, // falfestés alapdíj Ft/m²
-  mennyezetFestes: 1500, // mennyezetfestés Ft/m²
-  tapetaEltavolitas: 1000, // tapéta eltávolítás felár Ft/m²
+  alapFestes: PRICING.perSquareMeter.basePainting,
+  mennyezetFestes: PRICING.perSquareMeter.ceilingPainting,
+  tapetaEltavolitas: PRICING.perSquareMeter.wallpaperRemoval,
 } as const;
 
 /**
- * Fix áras extrák (Ft / darab).
+ * Fix áras extrák (Ft / darab) – a központi árkonfigurációból.
  */
 export const EXTRA_PRICES = {
-  ajto: 15000, // ajtók mázolása Ft/db
-  radiator: 10000, // radiátorok festése Ft/db
+  ajto: PRICING.extrasPerUnit.door,
+  radiator: PRICING.extrasPerUnit.radiator,
 } as const;
 
 /**
- * Falállapot választó opciók a szorzókkal.
+ * Falállapot választó opciók. A megjelenítési adatok (cím, leírás, kép, alt)
+ * itt vannak, a SZORZÓ viszont a központi árkonfigurációból jön.
  */
 export const CONDITION_OPTIONS: ConditionOption[] = [
   {
     id: 'excellent',
     title: 'Kiváló',
     description: 'Sima fal, csak tisztasági festés szükséges.',
-    multiplier: 1,
+    multiplier: PRICING.conditionMultipliers.excellent,
     image:
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=400&q=80',
     alt: 'Kiváló állapotú, sima fal – csak tisztasági festés',
@@ -34,7 +37,7 @@ export const CONDITION_OPTIONS: ConditionOption[] = [
     id: 'moderate',
     title: 'Enyhén rossz',
     description: 'Foltos felület, kisebb repedések, részleges glettelés.',
-    multiplier: 1.5,
+    multiplier: PRICING.conditionMultipliers.moderate,
     image:
       'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&w=400&q=80',
     alt: 'Enyhén rossz állapotú, foltos fal apró repedésekkel',
@@ -43,7 +46,7 @@ export const CONDITION_OPTIONS: ConditionOption[] = [
     id: 'poor',
     title: 'Nagyon rossz',
     description: 'Mély repedések, teljes glettelés és hálózás szükséges.',
-    multiplier: 2.2,
+    multiplier: PRICING.conditionMultipliers.poor,
     image:
       'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&w=400&q=80',
     alt: 'Nagyon rossz állapotú fal mély repedésekkel, leomló vakolattal',

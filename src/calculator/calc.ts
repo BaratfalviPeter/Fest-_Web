@@ -1,5 +1,6 @@
 import type { Room, RoomCost, WallId } from './types';
 import { PRICES, EXTRA_PRICES, CONDITION_OPTIONS } from './constants';
+import { PRICING } from '../config/pricing';
 
 /**
  * Egy adott fal felülete (m²).
@@ -15,16 +16,16 @@ export function conditionMultiplier(room: Room): number {
   return CONDITION_OPTIONS.find((c) => c.id === room.condition)?.multiplier ?? 1;
 }
 
-/** Egy liter festék hány m²-t fed egy réteggel (ökölszabály). */
-export const COVERAGE_M2_PER_LITER = 10;
+/** Egy liter festék hány m²-t fed egy réteggel (a központi konfigurációból). */
+export const COVERAGE_M2_PER_LITER = PRICING.paint.coverageM2PerLiter;
 
 /**
- * Szükséges festékrétegek száma a falállapot alapján.
+ * Szükséges festékrétegek száma a falállapot alapján (a konfigurációból).
  *   Kiváló (tisztasági festés): 1 réteg
  *   Enyhén rossz / Nagyon rossz: 2 réteg
  */
 export function coatsForCondition(room: Room): number {
-  return room.condition === 'excellent' ? 1 : 2;
+  return PRICING.coatsByCondition[room.condition];
 }
 
 /**
