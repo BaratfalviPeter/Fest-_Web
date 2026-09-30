@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Calculator, CheckCircle2 } from 'lucide-react';
 import { SITE } from '../data/site';
 
@@ -5,6 +6,7 @@ const HERO_IMAGE =
   'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1920&q=80';
 
 export default function Hero() {
+  const navigate = useNavigate();
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
@@ -47,7 +49,7 @@ export default function Hero() {
           </ul>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <button onClick={() => scrollTo('kalkulator')} className="btn-accent text-lg">
+            <button onClick={() => navigate('/arkalkulator')} className="btn-accent text-lg">
               <Calculator className="h-5 w-5" />
               Irány az Árkalkulátor
             </button>

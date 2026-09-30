@@ -33,7 +33,11 @@ export default function Header() {
     }
   };
 
-  const scrollToCalculator = () => goToSection('kalkulator');
+  // A "Kérjen ajánlatot" gomb az Árkalkulátor aloldalra visz.
+  const goToCalculator = () => {
+    setMenuOpen(false);
+    navigate('/arkalkulator');
+  };
 
   // Egy navigációs elem renderelése: útvonal (/...) -> Link, szekció (#...) -> gomb.
   const renderNavItem = (
@@ -117,7 +121,7 @@ export default function Header() {
             <Phone className="h-4 w-4" />
             {SITE.phone}
           </a>
-          <button onClick={scrollToCalculator} className="btn-accent px-5 py-2.5 text-sm">
+          <button onClick={goToCalculator} className="btn-accent px-5 py-2.5 text-sm">
             Kérjen ajánlatot
           </button>
         </div>
@@ -150,7 +154,7 @@ export default function Header() {
               <Phone className="h-4 w-4" />
               {SITE.phone}
             </a>
-            <button onClick={scrollToCalculator} className="btn-accent mt-2">
+            <button onClick={goToCalculator} className="btn-accent mt-2">
               Kérjen ajánlatot
             </button>
           </div>

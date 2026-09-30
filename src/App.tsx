@@ -4,12 +4,16 @@ import Hero from './components/Hero';
 import Services from './components/Services';
 import About from './components/About';
 import ColorVisualizer from './components/ColorVisualizer';
-import Calculator from './calculator/Calculator';
+import CtaSection from './components/CtaSection';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ReferencesPage from './pages/ReferencesPage';
+import CalculatorPage from './pages/CalculatorPage';
 
-/** Főoldal – fókuszált és gyors; a Referenciák külön aloldalon él. */
+/**
+ * Főoldal – fókuszált bemutatkozó: érték először. A Referenciák és az
+ * Árkalkulátor külön aloldalon él; a CTA szekció vezet át rájuk.
+ */
 function HomePage() {
   return (
     <main>
@@ -17,7 +21,7 @@ function HomePage() {
       <Services />
       <About />
       <ColorVisualizer />
-      <Calculator />
+      <CtaSection />
       <Contact />
     </main>
   );
@@ -30,10 +34,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/referenciak" element={<ReferencesPage />} />
+        <Route path="/arkalkulator" element={<CalculatorPage />} />
       </Routes>
       <Footer />
-      {/* A sticky árkalkulátor sáv miatt a footer alá térköz, hogy ne takarja. */}
-      <div className="h-20" aria-hidden="true" />
     </>
   );
 }
