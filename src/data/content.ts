@@ -60,6 +60,27 @@ export interface GalleryImage {
   alt: string;
 }
 
+/** Előtte-utána képösszehasonlító pár a Referenciák oldalhoz. */
+export interface BeforeAfterPair {
+  beforeSrc: string;
+  beforeAlt: string;
+  afterSrc: string;
+  afterAlt: string;
+}
+
+/**
+ * Előtte-utána mintapár – tesztképek (Unsplash).
+ * Később lecserélhető a saját portfólió fotókra.
+ */
+export const BEFORE_AFTER: BeforeAfterPair = {
+  beforeSrc:
+    'https://images.unsplash.com/photo-1520927640138-4e21c66c6b7f?auto=format&fit=crop&w=1200&q=80',
+  beforeAlt: 'Lepukkant, felújításra váró szoba – festés előtt',
+  afterSrc:
+    'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
+  afterAlt: 'Frissen felújított, világos szoba – festés után',
+};
+
 /**
  * Referencia galéria – Unsplash stock fotók.
  * A width/quality paraméterek optimalizálják a betöltést.

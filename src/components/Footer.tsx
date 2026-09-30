@@ -1,8 +1,24 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Paintbrush, Phone, Mail, MapPin } from 'lucide-react';
 import { NAV_ITEMS, SITE } from '../data/site';
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const onHome = location.pathname === '/';
+
+  // Szekció-hivatkozás (#id): a főoldalon görgetés, máshonnan előbb navigálás.
+  const goToSection = (id: string) => {
+    if (onHome) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/');
+      window.setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 60);
+    }
+  };
 
   return (
     <footer className="bg-primary-dark text-white/80">
@@ -28,9 +44,19 @@ export default function Footer() {
             <ul className="mt-4 space-y-2 text-sm">
               {NAV_ITEMS.map((item) => (
                 <li key={item.href}>
-                  <a href={item.href} className="transition-colors hover:text-white">
-                    {item.label}
-                  </a>
+                  {item.href.startsWith('/') ? (
+                    <Link to={item.href} className="transition-colors hover:text-white">
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => goToSection(item.href.slice(1))}
+                      className="text-left transition-colors hover:text-white"
+                    >
+                      {item.label}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

@@ -23,7 +23,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Szolgáltatások', href: '#szolgaltatasok' },
   { label: 'Rólunk', href: '#rolunk' },
-  { label: 'Referenciák', href: '#referenciak' },
+  { label: 'Referenciák', href: '/referenciak' },
   { label: 'Színtervező', href: '#szintervezo' },
   { label: 'Árkalkulátor', href: '#kalkulator' },
   { label: 'Kapcsolat', href: '#kapcsolat' },

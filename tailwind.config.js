@@ -23,9 +23,15 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // A Before/After csúszka húzógombjának finom pulzálása – jelzi, hogy mozgatható.
+        'handle-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(29, 78, 216, 0.45)' },
+          '50%': { boxShadow: '0 0 0 10px rgba(29, 78, 216, 0)' },
+        },
       },
       animation: {
         'fade-in-up': 'fade-in-up 0.6s ease-out both',
+        'handle-pulse': 'handle-pulse 2s ease-in-out infinite',
       },
     },
   },

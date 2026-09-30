@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <title>Átirányítás…</title>
+    <script type="text/javascript">
+      // SPA-fallback GitHub Pages-hez (spa-github-pages minta).
+      // A közvetlenül betöltött / frissített útvonalat (pl. /Fest-_Web/referenciak)
+      // query-stringgé alakítja, és átirányít a repó index.html-jére, ahol a
+      // beágyazott script visszaállítja a valódi útvonalat a History API-val.
+      // pathSegmentsToKeep = 1: a repónév ("Fest-_Web") mint alkönyvtár megmarad.
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          '//' +
+          l.hostname +
+          (l.port ? ':' + l.port : '') +
+          l.pathname
+            .split('/')
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join('/') +
+          '/?/' +
+          l.pathname
+            .slice(1)
+            .split('/')
+            .slice(pathSegmentsToKeep)
+            .join('/')
+            .replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
