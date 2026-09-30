@@ -119,14 +119,14 @@ export default function ColorVisualizer() {
                       VALÓSÁGHŰ FAL-SZÍNEZÉS – kétrétegű blend, hogy a sötét
                       színek se lapítsák el a falat:
 
-                      1) SZÍN-RÉTEG (multiply): a szín rávetül, megtartva a fal
-                         árnyékait és textúráját. Enyhén csökkentett opacity,
-                         hogy a bázis kicsit átsüssön.
-                      2) FÉNY-RÉTEG (screen): maga a bázis fotó, a falmaszkkal
-                         maszkolva, mix-blend-mode: screen-nel a szín fölött.
-                         A screen a világos pixeleket (csúcsfényeket) visszahozza,
-                         a sötéteket alig érinti -> a fal megtartja a térhatását
-                         és megvilágítását sötét festék alatt is.
+                      1) SZÍN-RÉTEG (multiply, opacity 1.0): a szín teljes,
+                         eredeti tónusban rávetül, megtartva a fal árnyékait
+                         és textúráját.
+                      2) FÉNY-RÉTEG (screen, opacity 0.18): maga a bázis fotó,
+                         a falmaszkkal maszkolva, a szín fölött. Csak enyhén
+                         hozza vissza a csúcsfényeket – épp annyira, hogy a fal
+                         ne legyen lapos, de a sötét színek NE fakuljanak ki
+                         (a túl magas érték rózsaszínesíti a sötét tónusokat).
 
                       Mindkét réteg UGYANAZT a falmaszkot használja, így a hatás
                       pontosan a falra korlátozódik. */}
@@ -139,7 +139,7 @@ export default function ColorVisualizer() {
                           style={{
                             backgroundColor: selected.hex,
                             mixBlendMode: 'multiply',
-                            opacity: 0.9,
+                            opacity: 1,
                             ...maskStyle,
                             // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
                             transition: 'background-color 0.4s ease-in-out',
@@ -156,7 +156,7 @@ export default function ColorVisualizer() {
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
                             mixBlendMode: 'screen',
-                            opacity: 0.5,
+                            opacity: 0.18,
                             ...maskStyle,
                             zIndex: 11,
                           }}
