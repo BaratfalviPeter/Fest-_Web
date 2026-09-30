@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight, Check, Palette, ArrowRight } from 'lucide-react';
 import {
   SPACE_TABS,
@@ -47,6 +47,22 @@ export default function ColorVisualizer() {
 
   const goToCalculator = () =>
     document.getElementById('kalkulator')?.scrollIntoView({ behavior: 'smooth' });
+
+  // Közös CSS maszk-beállítás a szín- és a fény-réteghez (ugyanaz a falmaszk).
+  // A base <img> object-cover-jével egyező cover/center vágás; azonos méret
+  // miatt pixelpontos illeszkedés.
+  const maskStyle: CSSProperties = currentImage
+    ? {
+        WebkitMaskImage: `url(${currentImage.maskUrl})`,
+        maskImage: `url(${currentImage.maskUrl})`,
+        WebkitMaskSize: 'cover',
+        maskSize: 'cover',
+        WebkitMaskPosition: 'center',
+        maskPosition: 'center',
+        WebkitMaskRepeat: 'no-repeat',
+        maskRepeat: 'no-repeat',
+      }
+    : {};
 
   return (
     <section id="szintervezo" className="bg-white py-20 lg:py-28">
@@ -99,36 +115,53 @@ export default function ColorVisualizer() {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
 
-                    {/* FELSŐ RÉTEG: szín + maszk.
-                        - backgroundColor = kiválasztott HEX
-                        - mix-blend-mode: multiply -> megtartja a fal textúráját/árnyékait
-                        - CSS maszk (mask-image) -> a szín KIZÁRÓLAG a maszkolt falra kerül,
-                          a bútor/padló (ahol a maszk átlátszó) érintetlen marad */}
+                    {/*
+                      VALÓSÁGHŰ FAL-SZÍNEZÉS – kétrétegű blend, hogy a sötét
+                      színek se lapítsák el a falat:
+
+                      1) SZÍN-RÉTEG (multiply): a szín rávetül, megtartva a fal
+                         árnyékait és textúráját. Enyhén csökkentett opacity,
+                         hogy a bázis kicsit átsüssön.
+                      2) FÉNY-RÉTEG (screen): maga a bázis fotó, a falmaszkkal
+                         maszkolva, mix-blend-mode: screen-nel a szín fölött.
+                         A screen a világos pixeleket (csúcsfényeket) visszahozza,
+                         a sötéteket alig érinti -> a fal megtartja a térhatását
+                         és megvilágítását sötét festék alatt is.
+
+                      Mindkét réteg UGYANAZT a falmaszkot használja, így a hatás
+                      pontosan a falra korlátozódik. */}
                     {selected && (
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0"
-                        style={{
-                          backgroundColor: selected.hex,
-                          mixBlendMode: 'multiply',
-                          WebkitMaskImage: `url(${currentImage.maskUrl})`,
-                          maskImage: `url(${currentImage.maskUrl})`,
-                          // A base <img> object-cover-rel igazodik; a maszk
-                          // mask-size: cover-je ugyanígy vág/pozicionál. Mivel a
-                          // base és a maszk pixelre azonos méretű (1920x1222),
-                          // a maszk pontosan a falra simul, elcsúszás nélkül.
-                          WebkitMaskSize: 'cover',
-                          maskSize: 'cover',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
-                          transition: 'background-color 0.4s ease-in-out',
-                          // A base fotó fölött, de a vezérlők (nyilak, badge) alatt.
-                          zIndex: 10,
-                        }}
-                      />
+                      <>
+                        {/* 1) Szín-réteg – multiply */}
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0"
+                          style={{
+                            backgroundColor: selected.hex,
+                            mixBlendMode: 'multiply',
+                            opacity: 0.9,
+                            ...maskStyle,
+                            // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
+                            transition: 'background-color 0.4s ease-in-out',
+                            zIndex: 10,
+                          }}
+                        />
+                        {/* 2) Fény-réteg – a bázis fotó screen módban visszahozza a csúcsfényeket */}
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0"
+                          style={{
+                            backgroundImage: `url(${currentImage.imageUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            mixBlendMode: 'screen',
+                            opacity: 0.5,
+                            ...maskStyle,
+                            zIndex: 11,
+                          }}
+                        />
+                      </>
                     )}
 
                     {/* Lapozó nyilak – csak ha több kép van */}
