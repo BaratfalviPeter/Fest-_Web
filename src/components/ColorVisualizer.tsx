@@ -21,6 +21,8 @@ export default function ColorVisualizer() {
 
   const images = SCENE_IMAGES[category];
   const activeBrand = brands.find((b) => b.id === brandId) ?? brands[0];
+  // Lehet undefined, ha egy kategóriához (még) nincs kép (pl. kültér).
+  const currentImage = images[imageIndex];
 
   // Tér váltásakor visszaállítjuk a márkát, színt és a képindexet a kategóriához.
   const changeCategory = (next: ColorCategory) => {
@@ -38,8 +40,10 @@ export default function ColorVisualizer() {
     setSelected(b?.colors[0] ?? null);
   };
 
-  const prevImage = () => setImageIndex((i) => (i - 1 + images.length) % images.length);
-  const nextImage = () => setImageIndex((i) => (i + 1) % images.length);
+  const prevImage = () =>
+    setImageIndex((i) => (images.length ? (i - 1 + images.length) % images.length : 0));
+  const nextImage = () =>
+    setImageIndex((i) => (images.length ? (i + 1) % images.length : 0));
 
   const goToCalculator = () =>
     document.getElementById('kalkulator')?.scrollIntoView({ behavior: 'smooth' });
@@ -86,66 +90,99 @@ export default function ColorVisualizer() {
           <div className="lg:col-span-3">
             <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
               <div className="relative aspect-[4/3]">
-                <img
-                  src={images[imageIndex].src}
-                  alt={images[imageIndex].alt}
-                  className="h-full w-full object-cover"
-                />
-
-                {/* Színréteg: mix-blend-mode: multiply -> megtartja a fény-árnyék viszonyokat */}
-                {selected && (
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 transition-colors duration-300"
-                    style={{ backgroundColor: selected.hex, mixBlendMode: 'multiply', opacity: 0.85 }}
-                  />
-                )}
-
-                {/* Lapozó nyilak */}
-                <button
-                  type="button"
-                  onClick={prevImage}
-                  aria-label="Előző kép"
-                  className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextImage}
-                  aria-label="Következő kép"
-                  className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-
-                {/* Aktuális szín badge a képen */}
-                {selected && (
-                  <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-gray-800 shadow-md backdrop-blur">
-                    <span
-                      className="inline-block h-4 w-4 rounded-full ring-1 ring-black/10"
-                      style={{ backgroundColor: selected.hex }}
+                {currentImage ? (
+                  <>
+                    {/* ALSÓ RÉTEG: az eredeti, berendezett fotó */}
+                    <img
+                      src={currentImage.imageUrl}
+                      alt={currentImage.alt}
+                      className="absolute inset-0 h-full w-full object-cover"
                     />
-                    {selected.name}
+
+                    {/* FELSŐ RÉTEG: szín + maszk.
+                        - backgroundColor = kiválasztott HEX
+                        - mix-blend-mode: multiply -> megtartja a fal textúráját/árnyékait
+                        - CSS maszk (mask-image) -> a szín KIZÁRÓLAG a maszkolt falra kerül,
+                          a bútor/padló (ahol a maszk átlátszó) érintetlen marad */}
+                    {selected && (
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 transition-colors duration-300"
+                        style={{
+                          backgroundColor: selected.hex,
+                          mixBlendMode: 'multiply',
+                          WebkitMaskImage: `url(${currentImage.maskUrl})`,
+                          maskImage: `url(${currentImage.maskUrl})`,
+                          WebkitMaskSize: 'cover',
+                          maskSize: 'cover',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                        }}
+                      />
+                    )}
+
+                    {/* Lapozó nyilak – csak ha több kép van */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={prevImage}
+                          aria-label="Előző kép"
+                          className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={nextImage}
+                          aria-label="Következő kép"
+                          className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Aktuális szín badge a képen */}
+                    {selected && (
+                      <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-gray-800 shadow-md backdrop-blur">
+                        <span
+                          className="inline-block h-4 w-4 rounded-full ring-1 ring-black/10"
+                          style={{ backgroundColor: selected.hex }}
+                        />
+                        {selected.name}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Üres állapot – ehhez a térhez még nincs feltöltött kép */
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-100 p-6 text-center text-gray-500">
+                    <Palette className="h-10 w-10 text-gray-400" />
+                    <p className="font-medium">Ehhez a térhez hamarosan érkeznek a képek.</p>
+                    <p className="text-sm">Válassza a „Beltéri Színek" fület a próbához.</p>
                   </div>
                 )}
               </div>
 
-              {/* Pöttyök */}
-              <div className="flex items-center justify-center gap-2 py-3">
-                {images.map((img, i) => (
-                  <button
-                    key={img.src}
-                    type="button"
-                    onClick={() => setImageIndex(i)}
-                    aria-label={`${i + 1}. kép`}
-                    aria-current={i === imageIndex}
-                    className={`h-2.5 rounded-full transition-all ${
-                      i === imageIndex ? 'w-6 bg-primary' : 'w-2.5 bg-gray-300 hover:bg-gray-400'
-                    }`}
-                  />
-                ))}
-              </div>
+              {/* Pöttyök – csak ha több kép van */}
+              {images.length > 1 && (
+                <div className="flex items-center justify-center gap-2 py-3">
+                  {images.map((img, i) => (
+                    <button
+                      key={img.imageUrl}
+                      type="button"
+                      onClick={() => setImageIndex(i)}
+                      aria-label={`${i + 1}. kép`}
+                      aria-current={i === imageIndex}
+                      className={`h-2.5 rounded-full transition-all ${
+                        i === imageIndex ? 'w-6 bg-primary' : 'w-2.5 bg-gray-300 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

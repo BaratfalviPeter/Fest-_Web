@@ -84,43 +84,43 @@ export const SPACE_TABS: SpaceTab[] = [
 ];
 
 export interface SceneImage {
-  src: string;
+  /** Az eredeti, berendezett fotó (alsó réteg). */
+  imageUrl: string;
+  /**
+   * A falfelületet kijelölő maszk kép (PNG, alfa csatornával).
+   * A színréteg CSS mask-image-ként EZT használja: ahol a maszk átlátszó,
+   * ott az eredeti fotó marad (bútor, padló), ahol látszó, ott színeződik (fal).
+   */
+  maskUrl: string;
   alt: string;
 }
 
 /**
- * Sablonképek terenként. Világos, neutrális Unsplash fotók, hogy a
- * mix-blend-mode: multiply réteg valósághűen vetüljön a falakra.
+ * A public/ mappán belüli elérési utak elé a Vite base URL-je kerül,
+ * hogy lokálisan (/) és GitHub Pages-en (/Fest-_Web/) is helyes legyen.
+ *
+ * Új kép felvétele:
+ *   1. tedd a base + mask párost a public/images/visualizer/<kategória>/ alá,
+ *   2. vegyél fel egy új { imageUrl, maskUrl, alt } bejegyzést a listába
+ *      az `asset('images/visualizer/...')` segédfüggvénnyel.
+ */
+const asset = (p: string): string => `${import.meta.env.BASE_URL}${p}`;
+
+/**
+ * Sablonképek terenként – pixelpontos base + mask párokkal.
+ * A színréteg mix-blend-mode: multiply + CSS maszk révén csak a falakra vetül.
  */
 export const SCENE_IMAGES: Record<ColorCategory, SceneImage[]> = {
   interior: [
     {
-      src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Világos, minimál nappali kanapéval – falszín előnézet',
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Neutrális hálószoba ággyal – falszín előnézet',
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Világos étkező tér – falszín előnézet',
+      imageUrl: asset('images/visualizer/interior/living-room-base.jpg'),
+      maskUrl: asset('images/visualizer/interior/living-room-mask.png'),
+      alt: 'Világos nappali szürke kanapéval – falszín előnézet maszkolással',
     },
   ],
-  exterior: [
-    {
-      src: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Családi ház homlokzata – vakolatszín előnézet',
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Modern ház külső homlokzata – vakolatszín előnézet',
-    },
-    {
-      src: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80',
-      alt: 'Kertes ház homlokzata – vakolatszín előnézet',
-    },
-  ],
+  // A homlokzatos base+mask párokat ide, a public/images/visualizer/exterior/
+  // mappába kell tenni, majd ugyanígy felvenni egy bejegyzést.
+  exterior: [],
 };
 
 /** Segédfüggvény: az adott kategóriához tartozó márkák. */
