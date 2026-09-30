@@ -113,6 +113,10 @@ export default function ColorVisualizer() {
                           mixBlendMode: 'multiply',
                           WebkitMaskImage: `url(${currentImage.maskUrl})`,
                           maskImage: `url(${currentImage.maskUrl})`,
+                          // A base <img> object-cover-rel igazodik; a maszk
+                          // mask-size: cover-je ugyanígy vág/pozicionál. Mivel a
+                          // base és a maszk pixelre azonos méretű (1920x1222),
+                          // a maszk pontosan a falra simul, elcsúszás nélkül.
                           WebkitMaskSize: 'cover',
                           maskSize: 'cover',
                           WebkitMaskPosition: 'center',
