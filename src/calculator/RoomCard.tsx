@@ -1,4 +1,4 @@
-import { Trash2, Ruler, PencilRuler, Palette, Sparkles, DoorOpen, Thermometer, Minus, Plus } from 'lucide-react';
+import { Trash2, Ruler, PencilRuler, Palette, Sparkles, DoorOpen, Thermometer, Minus, Plus, PaintBucket } from 'lucide-react';
 import type { Room, WallId, ConditionId } from './types';
 import { calcRoomCost } from './calc';
 import { formatHuf } from './constants';
@@ -222,8 +222,25 @@ export default function RoomCard({ room, index, canRemove, onChange, onRemove }:
         </div>
       </div>
 
+      {/* Becsült festékszükséglet */}
+      <div className="mt-6 rounded-xl bg-primary/5 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-2 text-sm font-medium text-gray-600">
+            <PaintBucket className="h-4 w-4 text-primary" />
+            Becsült festékszükséglet ({cost.coats} réteg)
+          </span>
+          <span className="text-lg font-extrabold text-primary">
+            {cost.paintLiters.toFixed(1)} l
+          </span>
+        </div>
+        <p className="mt-1.5 text-xs italic text-gray-400">
+          A szükséges festékmennyiség az eredeti falszíntől, a felülettől és a festék típusától
+          függően változhat, ez az érték csupán iránymutató becslés.
+        </p>
+      </div>
+
       {/* Szoba részösszeg */}
-      <div className="mt-6 flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+      <div className="mt-4 flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
         <span className="text-sm font-medium text-gray-600">Szoba részösszeg</span>
         <span className="text-lg font-extrabold text-primary">{formatHuf(cost.total)}</span>
       </div>

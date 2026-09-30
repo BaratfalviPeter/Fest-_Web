@@ -15,6 +15,18 @@ export function conditionMultiplier(room: Room): number {
   return CONDITION_OPTIONS.find((c) => c.id === room.condition)?.multiplier ?? 1;
 }
 
+/** Egy liter festék hány m²-t fed egy réteggel (ökölszabály). */
+export const COVERAGE_M2_PER_LITER = 10;
+
+/**
+ * Szükséges festékrétegek száma a falállapot alapján.
+ *   Kiváló (tisztasági festés): 1 réteg
+ *   Enyhén rossz / Nagyon rossz: 2 réteg
+ */
+export function coatsForCondition(room: Room): number {
+  return room.condition === 'excellent' ? 1 : 2;
+}
+
 /**
  * Egy szoba teljes költségbontása.
  * Szakmai logika: ajtókat és ablakokat NEM vonunk le.
@@ -46,6 +58,10 @@ export function calcRoomCost(room: Room): RoomCost {
   const radiatorsCost = room.extras.radiators * EXTRA_PRICES.radiator;
   const extrasCost = doorsCost + radiatorsCost;
 
+  // Festékszükséglet: réteg(ek) * felület / lefedettség.
+  const coats = coatsForCondition(room);
+  const paintLiters = (paintableArea * coats) / COVERAGE_M2_PER_LITER;
+
   const total = paintCost + wallpaperRemovalCost + extrasCost;
 
   return {
@@ -60,6 +76,8 @@ export function calcRoomCost(room: Room): RoomCost {
     extrasCost,
     doorsCost,
     radiatorsCost,
+    coats,
+    paintLiters,
     total,
   };
 }
@@ -77,6 +95,8 @@ export interface CostBreakdown {
   doorsCost: number;
   radiatorsCost: number;
   extrasCost: number;
+  /** Összes becsült festékmennyiség literben. */
+  paintLiters: number;
   total: number;
 }
 
@@ -92,6 +112,7 @@ export function calcBreakdown(rooms: Room[]): CostBreakdown {
         doorsCost: acc.doorsCost + c.doorsCost,
         radiatorsCost: acc.radiatorsCost + c.radiatorsCost,
         extrasCost: acc.extrasCost + c.extrasCost,
+        paintLiters: acc.paintLiters + c.paintLiters,
         total: acc.total + c.total,
       };
     },
@@ -102,6 +123,7 @@ export function calcBreakdown(rooms: Room[]): CostBreakdown {
       doorsCost: 0,
       radiatorsCost: 0,
       extrasCost: 0,
+      paintLiters: 0,
       total: 0,
     },
   );

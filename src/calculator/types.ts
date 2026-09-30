@@ -55,5 +55,9 @@ export interface RoomCost {
   extrasCost: number;
   doorsCost: number;
   radiatorsCost: number;
+  /** Szükséges festékrétegek száma (kiváló=1, egyéb=2). */
+  coats: number;
+  /** Becsült festékmennyiség literben (paintableArea * coats / 10). */
+  paintLiters: number;
   total: number;
 }
