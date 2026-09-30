@@ -107,7 +107,7 @@ export default function ColorVisualizer() {
                     {selected && (
                       <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 transition-colors duration-300"
+                        className="pointer-events-none absolute inset-0"
                         style={{
                           backgroundColor: selected.hex,
                           mixBlendMode: 'multiply',
@@ -119,6 +119,10 @@ export default function ColorVisualizer() {
                           maskPosition: 'center',
                           WebkitMaskRepeat: 'no-repeat',
                           maskRepeat: 'no-repeat',
+                          // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
+                          transition: 'background-color 0.4s ease-in-out',
+                          // A base fotó fölött, de a vezérlők (nyilak, badge) alatt.
+                          zIndex: 10,
                         }}
                       />
                     )}
@@ -130,7 +134,7 @@ export default function ColorVisualizer() {
                           type="button"
                           onClick={prevImage}
                           aria-label="Előző kép"
-                          className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
+                          className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
                         >
                           <ChevronLeft className="h-5 w-5" />
                         </button>
@@ -138,7 +142,7 @@ export default function ColorVisualizer() {
                           type="button"
                           onClick={nextImage}
                           aria-label="Következő kép"
-                          className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
+                          className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-800 shadow-md transition hover:bg-white"
                         >
                           <ChevronRight className="h-5 w-5" />
                         </button>
@@ -147,7 +151,7 @@ export default function ColorVisualizer() {
 
                     {/* Aktuális szín badge a képen */}
                     {selected && (
-                      <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-gray-800 shadow-md backdrop-blur">
+                      <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-gray-800 shadow-md backdrop-blur">
                         <span
                           className="inline-block h-4 w-4 rounded-full ring-1 ring-black/10"
                           style={{ backgroundColor: selected.hex }}
