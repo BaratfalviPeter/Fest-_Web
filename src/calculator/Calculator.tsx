@@ -23,24 +23,6 @@ function createRoom(name: string): Room {
   };
 }
 
-/** Egy sor a tételes bontásban. */
-function BreakdownRow({
-  label,
-  value,
-  muted = false,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between py-1.5 text-sm">
-      <span className={muted ? 'text-gray-500' : 'text-gray-700'}>{label}</span>
-      <span className={`font-semibold ${muted ? 'text-gray-500' : 'text-gray-900'}`}>{value}</span>
-    </div>
-  );
-}
-
 export default function Calculator() {
   const [rooms, setRooms] = useState<Room[]>(() => [createRoom('1. szoba')]);
   const [detailsOpen, setDetailsOpen] = useState(false);
