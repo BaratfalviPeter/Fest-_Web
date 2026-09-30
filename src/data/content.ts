@@ -73,12 +73,14 @@ export interface BeforeAfterPair {
  * Később lecserélhető a saját portfólió fotókra.
  */
 export const BEFORE_AFTER: BeforeAfterPair = {
+  // Drámai kontraszt: rossz állapotú, mély repedésekkel teli, málló fal...
   beforeSrc:
-    'https://images.unsplash.com/photo-1520927640138-4e21c66c6b7f?auto=format&fit=crop&w=1200&q=80',
-  beforeAlt: 'Lepukkant, felújításra váró szoba – festés előtt',
+    'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&w=1200&q=80',
+  beforeAlt: 'Rossz állapotú, mély repedésekkel és málló vakolattal teli fal – festés előtt',
+  // ...és a friss, kifestett, világos, tiszta lakótér.
   afterSrc:
-    'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
-  afterAlt: 'Frissen felújított, világos szoba – festés után',
+    'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80',
+  afterAlt: 'Frissen kifestett, világos, tiszta lakótér – festés után',
 };
 
 /**
