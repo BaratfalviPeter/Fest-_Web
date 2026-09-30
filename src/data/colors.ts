@@ -118,9 +118,13 @@ export const SCENE_IMAGES: Record<ColorCategory, SceneImage[]> = {
       alt: 'Világos nappali szürke kanapéval – falszín előnézet maszkolással',
     },
   ],
-  // A homlokzatos base+mask párokat ide, a public/images/visualizer/exterior/
-  // mappába kell tenni, majd ugyanígy felvenni egy bejegyzést.
-  exterior: [],
+  exterior: [
+    {
+      imageUrl: asset('images/visualizer/exterior/exterior-base.jpg'),
+      maskUrl: asset('images/visualizer/exterior/exterior-mask.png'),
+      alt: 'Családi ház napsütötte homlokzata – vakolatszín előnézet maszkolással',
+    },
+  ],
 };
 
 /** Segédfüggvény: az adott kategóriához tartozó márkák. */
