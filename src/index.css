@@ -33,4 +33,26 @@
   .section-container {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
+
+  /*
+    Prémium <select> stílus: eltünteti a gyári nyilat (appearance: none),
+    örökli az oldal betűtípusát, lekerekített keret + kényelmes padding,
+    és egy egyedi, letisztult SVG chevron a jobb szélen (background-image).
+  */
+  .select-premium {
+    @apply w-full cursor-pointer rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-11 font-medium text-gray-900 shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30;
+    font-family: inherit;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* Egyedi chevron-down ikon (slate-500), jobb szélre igazítva */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 1.15rem;
+  }
+
+  .select-premium:hover {
+    @apply border-gray-400;
+  }
 }

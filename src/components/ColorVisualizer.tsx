@@ -1,5 +1,5 @@
-import { useMemo, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, Check, Palette } from 'lucide-react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { ChevronLeft, ChevronRight, Check, Palette, Loader2 } from 'lucide-react';
 import {
   SPACE_TABS,
   SCENE_IMAGES,
@@ -67,10 +67,41 @@ export default function ColorVisualizer() {
   // Kiválasztott szín.
   const [selected, setSelected] = useState<PaintColor | null>(brands[0]?.colors[0] ?? null);
 
+  // Szinkronizált betöltés: amíg a báziskép ÉS a maszk be nem töltött,
+  // töltés-animációt mutatunk, a képtartalmat pedig rejtve tartjuk.
+  const [imgReady, setImgReady] = useState(false);
+
   const images = SCENE_IMAGES[category];
   const activeBrand = brands.find((b) => b.id === brandId) ?? brands[0];
   // Lehet undefined, ha egy kategóriához (még) nincs kép (pl. kültér).
   const currentImage = images[imageIndex];
+
+  // A báziskép és a maszk EGYÜTTES előtöltése – csak akkor mutatjuk a
+  // képtartalmat, ha mindkettő onload eseménye lefutott (nincs "ugrás",
+  // amikor a kisebb maszk hamarabb érkezik, mint a nagyobb bázisfotó).
+  useEffect(() => {
+    if (!currentImage) return;
+    let cancelled = false;
+    setImgReady(false);
+
+    const base = new Image();
+    const mask = new Image();
+    let loaded = 0;
+    const onOne = () => {
+      loaded += 1;
+      if (loaded === 2 && !cancelled) setImgReady(true);
+    };
+    base.onload = onOne;
+    base.onerror = onOne; // hibánál se ragadjon be a spinner
+    mask.onload = onOne;
+    mask.onerror = onOne;
+    base.src = currentImage.imageUrl;
+    mask.src = currentImage.maskUrl;
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentImage]);
 
   // Tér váltásakor visszaállítjuk a márkát, színt, képindexet és a textúrát.
   const changeCategory = (next: ColorCategory) => {
@@ -140,8 +171,19 @@ export default function ColorVisualizer() {
           <div className="lg:col-span-3">
             <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
               <div className="relative aspect-[4/3]">
+                {/* Töltés-animáció – amíg a báziskép és a maszk együtt be nem töltött */}
+                {currentImage && !imgReady && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center bg-gray-100">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                  </div>
+                )}
+
                 {currentImage ? (
-                  <>
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-500 ${
+                      imgReady ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
                     {/* ALSÓ RÉTEG: az eredeti, berendezett fotó */}
                     <img
                       src={currentImage.imageUrl}
@@ -251,7 +293,7 @@ export default function ColorVisualizer() {
                         {selected.name}
                       </div>
                     )}
-                  </>
+                  </div>
                 ) : (
                   /* Üres állapot – ehhez a térhez még nincs feltöltött kép */
                   <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-100 p-6 text-center text-gray-500">
@@ -292,7 +334,7 @@ export default function ColorVisualizer() {
               id="brand-select"
               value={brandId}
               onChange={(e) => changeBrand(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="select-premium"
             >
               {brands.map((b) => (
                 <option key={b.id} value={b.id}>
