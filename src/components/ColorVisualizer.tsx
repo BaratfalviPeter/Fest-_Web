@@ -27,10 +27,11 @@ function PlasterTextureFilter() {
     >
       <defs>
         <filter id="plaster-grain" x="0%" y="0%" width="100%" height="100%">
-          {/* Egyenletes, kissé durvább szemcse – azonos X/Y baseFrequency. */}
+          {/* Egyenletes, ritkább szemcse – azonos X/Y baseFrequency
+              (kisebb érték = nagyobb minta = természetesebb szemcsézettség). */}
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.16 0.16"
+            baseFrequency="0.1 0.1"
             numOctaves={2}
             seed={7}
             stitchTiles="stitch"
@@ -215,8 +216,9 @@ export default function ColorVisualizer() {
                         {/* 3) VAKOLAT-TEXTÚRA (csak kültéren): univerzális, monokróm
                             „kapart vakolat" zaj. A filter maga rajzolja a fekete
                             (alfás) szemcsét – NINCS szín, így nem torzítja a
-                            festék tónusát. multiply + alacsony opacity -> csak
-                            apró, sötét mikro-árnyékok (a vakolat gödröcskéi).
+                            festék tónusát. A soft-light blend megőrzi az alatta
+                            lévő szín telítettségét, a nagyon alacsony opacity
+                            miatt pedig épp csak egy finom mikro-árnyékolás marad.
                             A falmaszk a falra korlátozza. */}
                         {category === 'exterior' && (
                           <div
@@ -224,8 +226,8 @@ export default function ColorVisualizer() {
                             className="pointer-events-none absolute inset-0"
                             style={{
                               filter: 'url(#plaster-grain)',
-                              mixBlendMode: 'multiply',
-                              opacity: 0.2,
+                              mixBlendMode: 'soft-light',
+                              opacity: 0.06,
                               ...maskStyle,
                               zIndex: 12,
                             }}
