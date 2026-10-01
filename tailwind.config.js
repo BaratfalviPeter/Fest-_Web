@@ -13,6 +13,7 @@ export default {
         accent: {
           DEFAULT: '#f97316', // orange-500
           light: '#fbbf24', // amber-400
+          dark: '#c2410c', // orange-700 (olvasható szöveg világos háttéren)
         },
       },
       fontFamily: {

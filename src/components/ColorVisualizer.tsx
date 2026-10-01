@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, Check, Palette, Loader2, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Palette, Loader2, Sun, Moon, Sparkles } from 'lucide-react';
 import {
   SPACE_TABS,
   SCENE_IMAGES,
-  MOODS,
   brandsByCategory,
   type ColorCategory,
   type PaintColor,
-  type MoodTag,
 } from '../data/colors';
+import ColorQuiz from './ColorQuiz';
 
 /**
  * Rejtett SVG a kültéri „kapart vakolat" textúrához – egyetlen, univerzális,
@@ -74,15 +73,11 @@ export default function ColorVisualizer() {
   const [imgReady, setImgReady] = useState(false);
   // Nappali / esti (lámpafényes) fényviszony kapcsoló.
   const [isNightMode, setIsNightMode] = useState(false);
-  // Hangulat-szűrő: null = Összes szín.
-  const [activeMood, setActiveMood] = useState<MoodTag | null>(null);
+  // Szín-kvíz modal nyitva van-e.
+  const [quizOpen, setQuizOpen] = useState(false);
 
   const images = SCENE_IMAGES[category];
   const activeBrand = brands.find((b) => b.id === brandId) ?? brands[0];
-  // A hangulat-szűrővel leszűrt színlista (null = összes).
-  const visibleColors = (activeBrand?.colors ?? []).filter(
-    (c) => activeMood === null || c.tags.includes(activeMood),
-  );
   // Lehet undefined, ha egy kategóriához (még) nincs kép (pl. kültér).
   const currentImage = images[imageIndex];
   // Van-e esti változat az aktuális képhez (ekkor jelenik meg a kapcsoló).
@@ -129,14 +124,12 @@ export default function ColorVisualizer() {
     setBrandId(nextBrands[0]?.id ?? '');
     setSelected(nextBrands[0]?.colors[0] ?? null);
     setIsNightMode(false); // új tér -> alapból nappali
-    setActiveMood(null); // új tér -> összes szín
   };
 
   const changeBrand = (id: string) => {
     setBrandId(id);
     const b = brands.find((x) => x.id === id);
     setSelected(b?.colors[0] ?? null);
-    setActiveMood(null); // új márka -> összes szín
   };
 
   const prevImage = () =>
@@ -403,33 +396,15 @@ export default function ColorVisualizer() {
               ))}
             </select>
 
-            {/* Hangulat-ajánló – pill gombok a paletta fölött */}
-            <div className="mt-5">
-              <span className="mb-2 block text-sm font-medium text-gray-700">
-                Milyen hangulatot szeretne elérni?
-              </span>
-              <div className="flex flex-wrap gap-2" role="group" aria-label="Hangulat szűrő">
-                {MOODS.map((mood) => {
-                  const active = activeMood === mood.tag;
-                  return (
-                    <button
-                      key={mood.id}
-                      type="button"
-                      onClick={() => setActiveMood(mood.tag)}
-                      aria-pressed={active}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                        active
-                          ? 'border-primary bg-primary text-white shadow-sm'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-primary/50 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span aria-hidden="true">{mood.emoji}</span>
-                      {mood.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Szín-kvíz indító – prémium gomb a virtuális lakberendezőhöz */}
+            <button
+              type="button"
+              onClick={() => setQuizOpen(true)}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm font-semibold text-accent-dark transition-colors hover:bg-accent/20"
+            >
+              <Sparkles className="h-5 w-5 text-accent" />
+              Bizonytalan vagy? Segítünk választani! (Szín-kvíz)
+            </button>
 
             {/* Kiválasztott szín neve, nagy betűvel */}
             <div className="mt-6">
@@ -441,43 +416,34 @@ export default function ColorVisualizer() {
               </p>
             </div>
 
-            {/* Swatch grid – a hangulat-szűrővel leszűrt színekkel.
-                A `key`-ben az activeMood is benne van, így szűréskor a
-                megmaradó swatchok finoman újra beúsznak (fade-in-up). */}
-            {visibleColors.length > 0 ? (
-              <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5 lg:grid-cols-4">
-                {visibleColors.map((color) => {
-                  const isActive = selected?.name === color.name && selected?.hex === color.hex;
-                  return (
-                    <button
-                      key={`${activeMood ?? 'all'}-${color.name}-${color.hex}`}
-                      type="button"
-                      onClick={() => setSelected(color)}
-                      aria-pressed={isActive}
-                      aria-label={color.name}
-                      title={color.name}
-                      className={`relative aspect-square animate-fade-in-up rounded-xl ring-2 ring-offset-2 transition-all ${
-                        isActive ? 'ring-primary' : 'ring-transparent hover:ring-gray-300'
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                    >
-                      {isActive && (
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-primary shadow">
-                            <Check className="h-4 w-4" />
-                          </span>
+            {/* Swatch grid */}
+            <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5 lg:grid-cols-4">
+              {activeBrand?.colors.map((color) => {
+                const isActive = selected?.name === color.name && selected?.hex === color.hex;
+                return (
+                  <button
+                    key={`${color.name}-${color.hex}`}
+                    type="button"
+                    onClick={() => setSelected(color)}
+                    aria-pressed={isActive}
+                    aria-label={color.name}
+                    title={color.name}
+                    className={`relative aspect-square rounded-xl ring-2 ring-offset-2 transition-all ${
+                      isActive ? 'ring-primary' : 'ring-transparent hover:ring-gray-300'
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                  >
+                    {isActive && (
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-primary shadow">
+                          <Check className="h-4 w-4" />
                         </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="mt-4 rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-500">
-                Ehhez a hangulathoz nincs szín ebben a palettában. Válasszon másik hangulatot vagy
-                márkát.
-              </p>
-            )}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
             <p className="mt-4 text-xs text-gray-400">
               A megjelenített színek a képernyő beállításaitól függően eltérhetnek a valós
@@ -486,6 +452,19 @@ export default function ColorVisualizer() {
           </div>
         </div>
       </div>
+
+      {/* Szín-kvíz modal – az aktív márka színeiből ajánl; a kipróbált szín
+          azonnal a vászonra kerül. */}
+      {quizOpen && activeBrand && (
+        <ColorQuiz
+          brandColors={activeBrand.colors}
+          onClose={() => setQuizOpen(false)}
+          onPick={(color) => {
+            setSelected(color);
+            setQuizOpen(false);
+          }}
+        />
+      )}
     </section>
   );
 }
