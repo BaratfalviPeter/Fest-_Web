@@ -193,6 +193,32 @@ export default function Contact() {
                 Új üzenet küldése
               </button>
             </div>
+          ) : status === 'error' ? (
+            /* Hiba-fallback: ha az EmailJS nem elérhető (keret kimerült / API
+               leállt), barátságos üzenet az alternatív elérhetőségekkel. */
+            <div className="flex h-full min-h-[24rem] flex-col items-center justify-center text-center">
+              <AlertCircle className="h-16 w-16 text-amber-500" />
+              <h3 className="mt-4 text-2xl font-bold text-gray-900">
+                Az ajánlatkérő átmenetileg nem elérhető
+              </h3>
+              <p className="mt-3 max-w-md text-gray-600">
+                Az automatikus ajánlatkérő rendszer átmenetileg nem elérhető. Kérjük, keressen
+                minket bizalommal telefonon, vagy írjon közvetlenül e-mailben az adatokkal!
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <a href={SITE.phoneHref} className="btn-primary">
+                  <Phone className="h-5 w-5" />
+                  {SITE.phone}
+                </a>
+                <a href={SITE.emailHref} className="btn-outline">
+                  <Mail className="h-5 w-5" />
+                  {SITE.email}
+                </a>
+              </div>
+              <button onClick={() => setStatus('idle')} className="mt-6 text-sm font-medium text-gray-500 hover:text-primary">
+                Vissza az űrlaphoz
+              </button>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -253,13 +279,6 @@ export default function Contact() {
                   className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
-
-              {status === 'error' && (
-                <p className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-                  <AlertCircle className="h-5 w-5 shrink-0" />
-                  Hiba történt a küldés során. Kérjük, próbálja újra, vagy hívjon minket telefonon.
-                </p>
-              )}
 
               <button
                 type="submit"
