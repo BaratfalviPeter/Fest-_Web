@@ -33,10 +33,10 @@
  */
 
 export const EMAIL_CONFIG = {
-  serviceId: 'YOUR_SERVICE_ID',
-  adminTemplateId: 'YOUR_ADMIN_TEMPLATE_ID',
-  autoReplyTemplateId: 'YOUR_AUTOREPLY_TEMPLATE_ID',
-  publicKey: 'YOUR_PUBLIC_KEY',
+  serviceId: 'service_rd6zvnh',
+  adminTemplateId: 'template_5nhcgb9',
+  autoReplyTemplateId: 'template_fq3i7pu',
+  publicKey: 'FM8GFM9L58Kv6L5NY',
   /** Ide érkeznek az ajánlatkérések (admin értesítő címzettje). */
   adminEmail: 'baratfalvipeter@gmail.com',
 } as const;
