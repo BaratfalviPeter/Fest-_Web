@@ -10,6 +10,8 @@ import Footer from './components/Footer';
 import ReferencesPage from './pages/ReferencesPage';
 import VisualizerPage from './pages/VisualizerPage';
 import CalculatorPage from './pages/CalculatorPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 
 /**
  * Főoldal – fókuszált bemutatkozó: érték először. A Referenciák, a Színtervező
@@ -42,6 +44,8 @@ export default function App() {
         <Route path="/referenciak" element={<ReferencesPage />} />
         <Route path="/szintervezo" element={<VisualizerPage />} />
         <Route path="/arkalkulator" element={<CalculatorPage />} />
+        <Route path="/adatkezeles" element={<PrivacyPage />} />
+        <Route path="/aszf" element={<TermsPage />} />
       </Routes>
       <Footer />
     </>

@@ -86,8 +86,16 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-6 text-center text-sm">
-          © {year} {SITE.companyName}. Minden jog fenntartva.
+        <div className="mt-12 flex flex-col items-center gap-4 border-t border-white/10 pt-6 text-sm sm:flex-row sm:justify-between">
+          <span>© {year} {SITE.companyName}. Minden jog fenntartva.</span>
+          <nav className="flex items-center gap-5" aria-label="Jogi dokumentumok">
+            <Link to="/adatkezeles" className="transition-colors hover:text-white">
+              Adatkezelési Tájékoztató
+            </Link>
+            <Link to="/aszf" className="transition-colors hover:text-white">
+              ÁSZF
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>

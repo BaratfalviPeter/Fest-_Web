@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Loader2, AlertCircle, Calculator } from 'lucide-react';
 import { SITE } from '../data/site';
@@ -16,6 +16,8 @@ export default function Contact() {
 
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
   const [status, setStatus] = useState<SendState>('idle');
+  // GDPR: a jogi dokumentumok elfogadása – e nélkül nem küldhető az űrlap.
+  const [accepted, setAccepted] = useState(false);
 
   const update = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -89,6 +91,7 @@ export default function Contact() {
 
   const resetForm = () => {
     setForm({ name: '', phone: '', email: '', message: '' });
+    setAccepted(false);
     setStatus('idle');
   };
 
@@ -280,9 +283,39 @@ export default function Contact() {
                 />
               </div>
 
+              {/* GDPR – kötelező elfogadás; a gomb csak bepipálva aktív */}
+              <label className="flex cursor-pointer items-start gap-3 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  required
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span>
+                  Megismertem és elfogadom az{' '}
+                  <Link
+                    to="/adatkezeles"
+                    target="_blank"
+                    className="font-medium text-primary underline hover:text-primary-dark"
+                  >
+                    Adatkezelési Tájékoztatóban
+                  </Link>{' '}
+                  és az{' '}
+                  <Link
+                    to="/aszf"
+                    target="_blank"
+                    className="font-medium text-primary underline hover:text-primary-dark"
+                  >
+                    ÁSZF
+                  </Link>
+                  -ben foglaltakat.
+                </span>
+              </label>
+
               <button
                 type="submit"
-                disabled={status === 'sending'}
+                disabled={status === 'sending' || !accepted}
                 className="btn-accent w-full text-lg disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {status === 'sending' ? (
