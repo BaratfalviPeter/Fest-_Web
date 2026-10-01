@@ -127,8 +127,8 @@ export const SCENE_IMAGES: Record<ColorCategory, SceneImage[]> = {
   ],
   exterior: [
     {
+      // A homlokzatnál NINCS esti mód – csak nappali nézet (nincs nightImageUrl).
       imageUrl: asset('images/visualizer/exterior/exterior-base.jpg'),
-      nightImageUrl: asset('images/visualizer/exterior/exterior-base-night.jpg'),
       maskUrl: asset('images/visualizer/exterior/exterior-mask.png'),
       alt: 'Családi ház napsütötte homlokzata – vakolatszín előnézet maszkolással',
     },
