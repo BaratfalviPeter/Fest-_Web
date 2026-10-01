@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, Check, Palette, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Palette, Loader2, Sun, Moon } from 'lucide-react';
 import {
   SPACE_TABS,
   SCENE_IMAGES,
@@ -70,17 +70,24 @@ export default function ColorVisualizer() {
   // Szinkronizált betöltés: amíg a báziskép ÉS a maszk be nem töltött,
   // töltés-animációt mutatunk, a képtartalmat pedig rejtve tartjuk.
   const [imgReady, setImgReady] = useState(false);
+  // Nappali / esti (lámpafényes) fényviszony kapcsoló.
+  const [isNightMode, setIsNightMode] = useState(false);
 
   const images = SCENE_IMAGES[category];
   const activeBrand = brands.find((b) => b.id === brandId) ?? brands[0];
   // Lehet undefined, ha egy kategóriához (még) nincs kép (pl. kültér).
   const currentImage = images[imageIndex];
+  // Van-e esti változat az aktuális képhez (ekkor jelenik meg a kapcsoló).
+  const hasNight = Boolean(currentImage?.nightImageUrl);
+  // A ténylegesen megjelenített bázis (esti módban az esti verzió).
+  const effectiveImageUrl =
+    isNightMode && currentImage?.nightImageUrl ? currentImage.nightImageUrl : currentImage?.imageUrl;
 
   // A báziskép és a maszk EGYÜTTES előtöltése – csak akkor mutatjuk a
   // képtartalmat, ha mindkettő onload eseménye lefutott (nincs "ugrás",
   // amikor a kisebb maszk hamarabb érkezik, mint a nagyobb bázisfotó).
   useEffect(() => {
-    if (!currentImage) return;
+    if (!currentImage || !effectiveImageUrl) return;
     let cancelled = false;
     setImgReady(false);
 
@@ -95,13 +102,13 @@ export default function ColorVisualizer() {
     base.onerror = onOne; // hibánál se ragadjon be a spinner
     mask.onload = onOne;
     mask.onerror = onOne;
-    base.src = currentImage.imageUrl;
+    base.src = effectiveImageUrl;
     mask.src = currentImage.maskUrl;
 
     return () => {
       cancelled = true;
     };
-  }, [currentImage]);
+  }, [currentImage, effectiveImageUrl]);
 
   // Tér váltásakor visszaállítjuk a márkát, színt, képindexet és a textúrát.
   const changeCategory = (next: ColorCategory) => {
@@ -111,6 +118,7 @@ export default function ColorVisualizer() {
     setImageIndex(0);
     setBrandId(nextBrands[0]?.id ?? '');
     setSelected(nextBrands[0]?.colors[0] ?? null);
+    setIsNightMode(false); // új tér -> alapból nappali
   };
 
   const changeBrand = (id: string) => {
@@ -184,12 +192,23 @@ export default function ColorVisualizer() {
                       imgReady ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
-                    {/* ALSÓ RÉTEG: az eredeti, berendezett fotó */}
+                    {/* ALSÓ RÉTEG: a nappali bázisfotó (mindig látszik) */}
                     <img
                       src={currentImage.imageUrl}
                       alt={currentImage.alt}
                       className="absolute inset-0 h-full w-full object-cover"
                     />
+                    {/* ESTI RÉTEG: lámpafényes verzió, 0.3s opacity-átmenettel
+                        a nappali fölött – mintha fel/le kapcsolnák a villanyt. */}
+                    {currentImage.nightImageUrl && (
+                      <img
+                        src={currentImage.nightImageUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ease-in-out"
+                        style={{ opacity: isNightMode ? 1 : 0 }}
+                      />
+                    )}
 
                     {/*
                       VALÓSÁGHŰ FAL-SZÍNEZÉS – kétrétegű blend, hogy a sötét
@@ -227,7 +246,7 @@ export default function ColorVisualizer() {
                           aria-hidden="true"
                           className="pointer-events-none absolute inset-0"
                           style={{
-                            backgroundImage: `url(${currentImage.imageUrl})`,
+                            backgroundImage: `url(${effectiveImageUrl})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
@@ -281,6 +300,35 @@ export default function ColorVisualizer() {
                           <ChevronRight className="h-5 w-5" />
                         </button>
                       </>
+                    )}
+
+                    {/* Nappali / Esti fényviszony kapcsoló – csak ha van esti verzió */}
+                    {hasNight && (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={isNightMode}
+                        aria-label={isNightMode ? 'Váltás nappali fényre' : 'Váltás esti fényre'}
+                        onClick={() => setIsNightMode((v) => !v)}
+                        className={`absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full p-1 shadow-md backdrop-blur transition-colors ${
+                          isNightMode ? 'bg-slate-800/90' : 'bg-white/90'
+                        }`}
+                      >
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                            !isNightMode ? 'bg-amber-400 text-white shadow' : 'text-slate-300'
+                          }`}
+                        >
+                          <Sun className="h-5 w-5" />
+                        </span>
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                            isNightMode ? 'bg-primary text-white shadow' : 'text-gray-500'
+                          }`}
+                        >
+                          <Moon className="h-5 w-5" />
+                        </span>
+                      </button>
                     )}
 
                     {/* Aktuális szín badge a képen */}

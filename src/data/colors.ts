@@ -87,6 +87,12 @@ export interface SceneImage {
   /** Az eredeti, berendezett fotó (alsó réteg). */
   imageUrl: string;
   /**
+   * Opcionális esti/lámpafényes változat UGYANARRÓL a kameraállásról.
+   * Ha meg van adva, megjelenik a Nappali/Esti kapcsoló. A maszk azonos
+   * (pixelpontos egyezés), így nem kell külön esti maszk.
+   */
+  nightImageUrl?: string;
+  /**
    * A falfelületet kijelölő maszk kép (PNG, alfa csatornával).
    * A színréteg CSS mask-image-ként EZT használja: ahol a maszk átlátszó,
    * ott az eredeti fotó marad (bútor, padló), ahol látszó, ott színeződik (fal).
@@ -114,6 +120,7 @@ export const SCENE_IMAGES: Record<ColorCategory, SceneImage[]> = {
   interior: [
     {
       imageUrl: asset('images/visualizer/interior/living-room-base.jpg'),
+      nightImageUrl: asset('images/visualizer/interior/living-room-base-night.jpg'),
       maskUrl: asset('images/visualizer/interior/living-room-mask.png'),
       alt: 'Világos nappali szürke kanapéval – falszín előnézet maszkolással',
     },
