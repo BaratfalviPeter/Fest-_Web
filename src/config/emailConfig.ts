@@ -29,6 +29,14 @@
  *  Amíg a placeholderek vannak beállítva (lenti isConfigured() = false),
  *  az űrlap "demó módban" fut: nem küld valódi levelet, csak sikeres
  *  visszajelzést mutat (fejlesztéshez / bemutatóhoz).
+ *
+ *  --- reCAPTCHA v3 (láthatatlan, spam elleni védelem) ---
+ *  4) https://www.google.com/recaptcha/admin -> új oldal regisztrálása
+ *     v3 típussal; add meg a domaint (pl. baratfalvipeter.github.io).
+ *     A "Site Key" kerül a lenti recaptchaSiteKey mezőbe (ez publikus,
+ *     mehet a frontend kódba). A "Secret Key"-t az EmailJS-ben kell megadni:
+ *     EmailJS -> Account -> Security -> "Enable reCAPTCHA v3" -> Secret Key.
+ *     Így az EmailJS a szerveroldalon ellenőrzi a tokent küldés előtt.
  * ============================================================================
  */
 
@@ -39,6 +47,12 @@ export const EMAIL_CONFIG = {
   publicKey: 'FM8GFM9L58Kv6L5NY',
   /** Ide érkeznek az ajánlatkérések (admin értesítő címzettje). */
   adminEmail: 'baratfalvipeter@gmail.com',
+  /**
+   * Google reCAPTCHA v3 (Invisible) SITE KEY – publikus kulcs, mehet a kódba.
+   * Amíg placeholder, a reCAPTCHA ki van kapcsolva (az űrlap token nélkül küld).
+   * A SECRET KEY-t NE ide tedd – az az EmailJS Security beállításába megy!
+   */
+  recaptchaSiteKey: 'YOUR_RECAPTCHA_SITE_KEY',
 } as const;
 
 /** True, ha a valós EmailJS azonosítók be vannak állítva (nem placeholder). */
@@ -48,4 +62,9 @@ export function isEmailConfigured(): boolean {
     !EMAIL_CONFIG.adminTemplateId.startsWith('YOUR_') &&
     !EMAIL_CONFIG.publicKey.startsWith('YOUR_')
   );
+}
+
+/** True, ha a reCAPTCHA v3 Site Key be van állítva (nem placeholder). */
+export function isRecaptchaConfigured(): boolean {
+  return !EMAIL_CONFIG.recaptchaSiteKey.startsWith('YOUR_');
 }

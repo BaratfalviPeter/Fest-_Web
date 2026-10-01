@@ -1,9 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Loader2, AlertCircle, Calculator } from 'lucide-react';
 import { SITE } from '../data/site';
 import { EMAIL_CONFIG, isEmailConfigured } from '../config/emailConfig';
+import { loadRecaptcha, getRecaptchaToken } from '../config/recaptcha';
 import { formatHuf } from '../calculator/constants';
 import type { QuoteSummary } from '../calculator/types';
 
@@ -21,6 +22,12 @@ export default function Contact() {
 
   const update = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // reCAPTCHA v3 script előtöltése (ha be van állítva a Site Key), hogy a
+  // token lekérése azonnali legyen küldéskor. Ha nincs beállítva, no-op.
+  useEffect(() => {
+    void loadRecaptcha();
+  }, []);
 
   // A kalkuláció szövegesen – ez kerül a levélbe ({{quote_details}}).
   const quoteDetailsText = (): string => {
@@ -55,18 +62,24 @@ export default function Contact() {
       return;
     }
 
-    // A sablonok közös változói.
-    const templateParams = {
-      to_email: EMAIL_CONFIG.adminEmail, // admin értesítő címzettje
-      from_name: form.name,
-      from_phone: form.phone,
-      from_email: form.email,
-      reply_to: form.email, // rá tudunk válaszolni az admin levélből
-      message: form.message,
-      quote_details: quoteDetailsText(),
-    };
-
     try {
+      // reCAPTCHA v3 token (háttérben, kihívás nélkül). Ha nincs beállítva a
+      // Site Key, null -> a küldés token nélkül megy.
+      const recaptchaToken = await getRecaptchaToken('submit_quote');
+
+      // A sablonok közös változói. A token a 'g-recaptcha-response' mezőben
+      // megy – ezt az EmailJS a Secret Key-jel szerveroldalon ellenőrzi.
+      const templateParams = {
+        to_email: EMAIL_CONFIG.adminEmail, // admin értesítő címzettje
+        from_name: form.name,
+        from_phone: form.phone,
+        from_email: form.email,
+        reply_to: form.email, // rá tudunk válaszolni az admin levélből
+        message: form.message,
+        quote_details: quoteDetailsText(),
+        ...(recaptchaToken ? { 'g-recaptcha-response': recaptchaToken } : {}),
+      };
+
       emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
 
       // 1) Admin értesítő (nekünk).
