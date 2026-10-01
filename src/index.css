@@ -56,3 +56,12 @@
     @apply border-gray-400;
   }
 }
+
+/*
+  A reCAPTCHA v3 lebegő jelvényének elrejtése (Google irányelvei szerint ez
+  megengedett, HA a reCAPTCHA jogi szövegét szövegesen feltüntetjük – lásd a
+  kapcsolati űrlap alatti tájékoztatót). A v3 védelem a háttérben továbbra is fut.
+*/
+.grecaptcha-badge {
+  visibility: hidden;
+}

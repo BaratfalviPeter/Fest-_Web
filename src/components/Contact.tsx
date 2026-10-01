@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { Phone, Mail, MapPin, Send, CheckCircle2, Loader2, AlertCircle, Calculator } from 'lucide-react';
 import { SITE } from '../data/site';
@@ -9,6 +9,17 @@ import { formatHuf } from '../calculator/constants';
 import type { QuoteSummary } from '../calculator/types';
 
 type SendState = 'idle' | 'sending' | 'success' | 'error';
+
+// Jogi PDF-ek elérési útja (a public/docs mappából, Vite base URL-lel, hogy
+// GitHub Pages alkönyvtáron is helyes legyen).
+const DOCS = {
+  aszf: `${import.meta.env.BASE_URL}docs/aszf.pdf`,
+  privacy: `${import.meta.env.BASE_URL}docs/adatkezelesi-tajekoztato.pdf`,
+};
+
+// A Google reCAPTCHA kötelező jogi hivatkozásai (a banner elrejtése miatt).
+const GOOGLE_PRIVACY = 'https://policies.google.com/privacy';
+const GOOGLE_TERMS = 'https://policies.google.com/terms';
 
 export default function Contact() {
   const location = useLocation();
@@ -307,22 +318,24 @@ export default function Contact() {
                 />
                 <span>
                   Megismertem és elfogadom az{' '}
-                  <Link
-                    to="/adatkezeles"
+                  <a
+                    href={DOCS.aszf}
                     target="_blank"
-                    className="font-medium text-primary underline hover:text-primary-dark"
-                  >
-                    Adatkezelési Tájékoztatóban
-                  </Link>{' '}
-                  és az{' '}
-                  <Link
-                    to="/aszf"
-                    target="_blank"
+                    rel="noopener noreferrer"
                     className="font-medium text-primary underline hover:text-primary-dark"
                   >
                     ÁSZF
-                  </Link>
-                  -ben foglaltakat.
+                  </a>{' '}
+                  és az{' '}
+                  <a
+                    href={DOCS.privacy}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary underline hover:text-primary-dark"
+                  >
+                    Adatkezelési Tájékoztató
+                  </a>{' '}
+                  feltételeit.
                 </span>
               </label>
 
@@ -343,8 +356,28 @@ export default function Contact() {
                   </>
                 )}
               </button>
+
+              {/* Google reCAPTCHA kötelező jogi szöveg (a banner el van rejtve) */}
               <p className="text-center text-xs text-gray-400">
-                Adatait kizárólag az ajánlatkérés feldolgozásához használjuk fel.
+                Ez az oldal reCAPTCHA által védett, a Google{' '}
+                <a
+                  href={GOOGLE_PRIVACY}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-600"
+                >
+                  Adatvédelmi irányelvei
+                </a>{' '}
+                és{' '}
+                <a
+                  href={GOOGLE_TERMS}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-gray-600"
+                >
+                  Szolgáltatási feltételei
+                </a>{' '}
+                érvényesek.
               </p>
             </form>
           )}

@@ -2,6 +2,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Paintbrush, Phone, Mail, MapPin } from 'lucide-react';
 import { NAV_ITEMS, SITE } from '../data/site';
 
+// Jogi PDF-ek a public/docs mappából (Vite base URL-lel a Pages-elérésért).
+const ASZF_PDF = `${import.meta.env.BASE_URL}docs/aszf.pdf`;
+const PRIVACY_PDF = `${import.meta.env.BASE_URL}docs/adatkezelesi-tajekoztato.pdf`;
+
 export default function Footer() {
   const year = new Date().getFullYear();
   const location = useLocation();
@@ -89,12 +93,22 @@ export default function Footer() {
         <div className="mt-12 flex flex-col items-center gap-4 border-t border-white/10 pt-6 text-sm sm:flex-row sm:justify-between">
           <span>© {year} {SITE.companyName}. Minden jog fenntartva.</span>
           <nav className="flex items-center gap-5" aria-label="Jogi dokumentumok">
-            <Link to="/adatkezeles" className="transition-colors hover:text-white">
-              Adatkezelési Tájékoztató
-            </Link>
-            <Link to="/aszf" className="transition-colors hover:text-white">
+            <a
+              href={ASZF_PDF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-white"
+            >
               ÁSZF
-            </Link>
+            </a>
+            <a
+              href={PRIVACY_PDF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-white"
+            >
+              Adatkezelési Tájékoztató
+            </a>
           </nav>
         </div>
       </div>
