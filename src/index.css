@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4: egyetlen import váltja a korábbi @tailwind direktívákat. */
+@import 'tailwindcss';
+
+/* A meglévő JS-alapú konfigurációt (theme.extend: primary/accent színek,
+   keyframes, animation, content) a v4 a @config direktívával tölti be –
+   így az @apply bg-primary / animate-fade-in-up stb. változatlanul működik. */
+@config '../tailwind.config.js';
 
 @layer base {
   html {
