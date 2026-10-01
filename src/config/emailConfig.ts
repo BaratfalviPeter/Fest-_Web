@@ -52,7 +52,7 @@ export const EMAIL_CONFIG = {
    * Amíg placeholder, a reCAPTCHA ki van kapcsolva (az űrlap token nélkül küld).
    * A SECRET KEY-t NE ide tedd – az az EmailJS Security beállításába megy!
    */
-  recaptchaSiteKey: 'YOUR_RECAPTCHA_SITE_KEY',
+  recaptchaSiteKey: '6LfGTNktAAAAANPQYS9DK_XesbXzDf2JSZkC45yn',
 } as const;
 
 /** True, ha a valós EmailJS azonosítók be vannak állítva (nem placeholder). */
