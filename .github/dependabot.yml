@@ -1,0 +1,32 @@
+# Dependabot – automatikus függőség- és biztonsági frissítések.
+# Dokumentáció: https://docs.github.com/code-security/dependabot
+version: 2
+updates:
+  # npm (JavaScript) függőségek a projekt gyökeréből.
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    # Egyszerre legfeljebb ennyi nyitott PR a verziófrissítésekhez
+    # (a biztonsági frissítések ezen felül, külön jönnek).
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'deps-dev'
+    # A kis (patch/minor) frissítéseket csoportosítjuk egy PR-be a kevesebb zajért.
+    groups:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # Maguknak a GitHub Actions workflow-knak a frissítése (pl. actions/checkout).
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
