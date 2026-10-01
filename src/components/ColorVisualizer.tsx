@@ -83,11 +83,14 @@ export default function ColorVisualizer() {
   const effectiveImageUrl =
     isNightMode && currentImage?.nightImageUrl ? currentImage.nightImageUrl : currentImage?.imageUrl;
 
-  // Esti módban a sötét bázisképen a multiply túl mélyre húzná a színeket,
-  // ezért a szín-réteg soft-light-ra vált (megtartja a lámpafény derengését),
-  // és a fény-réteg (screen) kicsit erősebb, hogy az udvari fények átjöjjenek.
-  const colorBlend: CSSProperties['mixBlendMode'] = isNightMode ? 'soft-light' : 'multiply';
-  const lightLayerOpacity = isNightMode ? 0.28 : 0.18;
+  // Esti módban a sötét bázisképen a multiply túl mélyre húzná és
+  // elszürkítené a színeket. Az OVERLAY sokkal jobban megőrzi a szín
+  // telítettségét és karakterét sötét háttéren (a Terrakotta narancsos-vöröses
+  // marad, nem fordul lilába). Egy enyhe brightness-szel kompenzáljuk az esti
+  // báziskép sötétségét.
+  const colorBlend: CSSProperties['mixBlendMode'] = isNightMode ? 'overlay' : 'multiply';
+  const colorFilter = isNightMode ? 'brightness(1.15)' : 'none';
+  const lightLayerOpacity = isNightMode ? 0.2 : 0.18;
 
   // A báziskép és a maszk EGYÜTTES előtöltése – csak akkor mutatjuk a
   // képtartalmat, ha mindkettő onload eseménye lefutott (nincs "ugrás",
@@ -241,9 +244,11 @@ export default function ColorVisualizer() {
                             backgroundColor: selected.hex,
                             mixBlendMode: colorBlend,
                             opacity: 1,
+                            // Esti módban enyhe fényerő-kompenzáció a sötét bázisképhez.
+                            filter: colorFilter,
                             ...maskStyle,
                             // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
-                            transition: 'background-color 0.4s ease-in-out',
+                            transition: 'background-color 0.4s ease-in-out, filter 0.3s ease-in-out',
                             zIndex: 10,
                           }}
                         />
