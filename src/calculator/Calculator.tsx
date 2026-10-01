@@ -1,10 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calculator as CalcIcon, Info, ChevronUp, ArrowRight, PaintBucket } from 'lucide-react';
-import type { Room } from './types';
-import { DEFAULT_ROOM, formatHuf } from './constants';
-import { calcGrandTotal, calcBreakdown } from './calc';
+import type { Room, QuoteSummary } from './types';
+import { DEFAULT_ROOM, CONDITION_OPTIONS, formatHuf } from './constants';
+import { calcGrandTotal, calcBreakdown, calcRoomCost } from './calc';
 import RoomCard from './RoomCard';
+
+const conditionLabel = (id: string): string =>
+  CONDITION_OPTIONS.find((c) => c.id === id)?.title ?? id;
 
 let roomCounter = 0;
 const nextId = () => `room-${Date.now()}-${roomCounter++}`;
@@ -32,16 +35,31 @@ export default function Calculator() {
 
   const hasRooms = rooms.length > 0;
 
-  // A főoldali kapcsolat szekcióhoz navigálás + görgetés.
+  const grandTotal = useMemo(() => calcGrandTotal(rooms), [rooms]);
+  const breakdown = useMemo(() => calcBreakdown(rooms), [rooms]);
+
+  // A kalkuláció összegzése, amit átadunk a Kapcsolat oldalnak (Router state).
+  const buildQuoteSummary = (): QuoteSummary => ({
+    roomCount: rooms.length,
+    totalPaintableArea: rooms.reduce((s, r) => s + calcRoomCost(r).paintableArea, 0),
+    totalPaintLiters: breakdown.paintLiters,
+    grandTotal,
+    rooms: rooms.map((r) => ({
+      name: r.name,
+      dimensions: `${r.width} × ${r.length} × ${r.height} m`,
+      condition: conditionLabel(r.condition),
+      total: calcRoomCost(r).total,
+    })),
+  });
+
+  // "Kérem az ajánlatot" -> a főoldali kapcsolat szekcióhoz navigálás a
+  // kalkuláció adataival (Router state), majd görgetés oda.
   const goToContact = () => {
-    navigate('/');
+    navigate('/', { state: { quote: buildQuoteSummary() } });
     window.setTimeout(() => {
       document.getElementById('kapcsolat')?.scrollIntoView({ behavior: 'smooth' });
     }, 60);
   };
-
-  const grandTotal = useMemo(() => calcGrandTotal(rooms), [rooms]);
-  const breakdown = useMemo(() => calcBreakdown(rooms), [rooms]);
 
   const addRoom = () => setRooms((prev) => [...prev, createRoom(`${prev.length + 1}. szoba`)]);
 

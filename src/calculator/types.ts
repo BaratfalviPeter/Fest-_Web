@@ -61,3 +61,30 @@ export interface RoomCost {
   paintLiters: number;
   total: number;
 }
+
+/**
+ * A kalkuláció összegzése – ezt adja át az Árkalkulátor a Kapcsolat
+ * oldalnak (React Router state), és ez kerül a levélbe is.
+ */
+export interface QuoteSummary {
+  /** Szobák száma. */
+  roomCount: number;
+  /** Összes festendő felület (fal + mennyezet), m². */
+  totalPaintableArea: number;
+  /** Becsült festékmennyiség literben. */
+  totalPaintLiters: number;
+  /** Összesített várható költség (Ft). */
+  grandTotal: number;
+  /** Soronkénti szoba-összefoglalók a levélhez / összesítő kártyához. */
+  rooms: QuoteRoom[];
+}
+
+export interface QuoteRoom {
+  name: string;
+  /** Méret szöveg, pl. "4 × 5 × 2.7 m". */
+  dimensions: string;
+  /** Falállapot megnevezése, pl. "Kiváló". */
+  condition: string;
+  /** Szoba részösszeg (Ft). */
+  total: number;
+}
