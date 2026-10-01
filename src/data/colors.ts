@@ -1,76 +1,19 @@
 /**
  * Színtervező adatforrás.
  *
- * === BŐVÍTÉSI ÚTMUTATÓ (programozói tudás nélkül is) ===
- * Új szín:   írj egy új { name, hex } sort a megfelelő márka `colors` tömbjébe.
- * Új márka:  másolj egy teljes { id, name, category, colors: [...] } blokkot,
- *            adj neki egyedi `id`-t, és állítsd be a `category`-t.
- * Kategória: 'interior' = csak Beltéri fülön, 'exterior' = csak Homlokzat/Kültér
- *            fülön jelenik meg.
- *
- * A HEX kódoknak érvényes 6 jegyű színkódnak kell lenniük (pl. '#f5f0e1').
+ * A márkák és színek a dedikált konfigurációs fájlban élnek
+ * (src/config/colorsConfig.ts) – ott bővíthetők kódlogika érintése nélkül.
+ * Ez a modul csak re-exportálja őket, és a sablonképeket (SCENE_IMAGES),
+ * a tér-füleket (SPACE_TABS) és a segédfüggvényeket adja hozzá.
  */
 
-/** Melyik térhez tartozik egy márka. */
-export type ColorCategory = 'interior' | 'exterior';
-
-export interface PaintColor {
-  /** Megjelenő színnév, pl. "Nárcisz". */
-  name: string;
-  /** Érvényes HEX kód, pl. "#f7e7a1". */
-  hex: string;
-}
-
-export interface PaintBrand {
-  /** Egyedi, stabil azonosító (a select value-ja). */
-  id: string;
-  /** Megjelenő márkanév. */
-  name: string;
-  /** Beltéri vagy kültéri paletta. */
-  category: ColorCategory;
-  colors: PaintColor[];
-}
-
-/**
- * A teljes márka- és színkészlet. Ide kell új elemeket felvenni.
- */
-export const PAINT_BRANDS: PaintBrand[] = [
-  {
-    id: 'poli-farbe-platinum',
-    name: 'Poli-Farbe Platinum',
-    category: 'interior',
-    colors: [
-      { name: 'Hóvirág', hex: '#f4f6f7' },
-      { name: 'Nárcisz', hex: '#f7e7a1' },
-      { name: 'Bíborka', hex: '#8e3b58' },
-      { name: 'Hamvaska', hex: '#a7a9ac' },
-    ],
-  },
-  {
-    id: 'hera-premium',
-    name: 'Héra Prémium',
-    category: 'interior',
-    colors: [
-      { name: 'Len', hex: '#e8e1d1' },
-      { name: 'Selyemfű', hex: '#b7c4b1' },
-      { name: 'Bazalt', hex: '#4b4f54' },
-      { name: 'Mandula', hex: '#e6d3b3' },
-    ],
-  },
-  {
-    id: 'kulteri-vakolatok',
-    name: 'Kültéri Vakolatok',
-    category: 'exterior',
-    colors: [
-      { name: 'Homokdűne', hex: '#e4d5b7' },
-      { name: 'Terrakotta', hex: '#c67b5c' },
-      { name: 'Olívazöld', hex: '#8a8b5c' },
-      { name: 'Vörösagyag', hex: '#a85c43' },
-      { name: 'Kavics', hex: '#cfc6b8' },
-      { name: 'Mokka', hex: '#8c6e54' },
-    ],
-  },
-];
+export {
+  PAINT_BRANDS,
+  type ColorCategory,
+  type PaintColor,
+  type PaintBrand,
+} from '../config/colorsConfig';
+import { PAINT_BRANDS, type ColorCategory, type PaintBrand } from '../config/colorsConfig';
 
 /** A tér-választó fülek. */
 export interface SpaceTab {
