@@ -83,6 +83,12 @@ export default function ColorVisualizer() {
   const effectiveImageUrl =
     isNightMode && currentImage?.nightImageUrl ? currentImage.nightImageUrl : currentImage?.imageUrl;
 
+  // Esti módban a sötét bázisképen a multiply túl mélyre húzná a színeket,
+  // ezért a szín-réteg soft-light-ra vált (megtartja a lámpafény derengését),
+  // és a fény-réteg (screen) kicsit erősebb, hogy az udvari fények átjöjjenek.
+  const colorBlend: CSSProperties['mixBlendMode'] = isNightMode ? 'soft-light' : 'multiply';
+  const lightLayerOpacity = isNightMode ? 0.28 : 0.18;
+
   // A báziskép és a maszk EGYÜTTES előtöltése – csak akkor mutatjuk a
   // képtartalmat, ha mindkettő onload eseménye lefutott (nincs "ugrás",
   // amikor a kisebb maszk hamarabb érkezik, mint a nagyobb bázisfotó).
@@ -227,13 +233,13 @@ export default function ColorVisualizer() {
                       pontosan a falra korlátozódik. */}
                     {selected && (
                       <>
-                        {/* 1) Szín-réteg – multiply */}
+                        {/* 1) Szín-réteg – nappal multiply, esti sötét képen soft-light */}
                         <div
                           aria-hidden="true"
                           className="pointer-events-none absolute inset-0"
                           style={{
                             backgroundColor: selected.hex,
-                            mixBlendMode: 'multiply',
+                            mixBlendMode: colorBlend,
                             opacity: 1,
                             ...maskStyle,
                             // Prémium átmenet: színváltáskor a fal elegánsan úszik át.
@@ -251,7 +257,7 @@ export default function ColorVisualizer() {
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
                             mixBlendMode: 'screen',
-                            opacity: 0.18,
+                            opacity: lightLayerOpacity,
                             ...maskStyle,
                             zIndex: 11,
                           }}

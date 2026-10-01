@@ -128,6 +128,7 @@ export const SCENE_IMAGES: Record<ColorCategory, SceneImage[]> = {
   exterior: [
     {
       imageUrl: asset('images/visualizer/exterior/exterior-base.jpg'),
+      nightImageUrl: asset('images/visualizer/exterior/exterior-base-night.jpg'),
       maskUrl: asset('images/visualizer/exterior/exterior-mask.png'),
       alt: 'Családi ház napsütötte homlokzata – vakolatszín előnézet maszkolással',
     },
