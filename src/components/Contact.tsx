@@ -34,6 +34,15 @@ export default function Contact() {
   const update = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  // Kimenő szöveg tisztítása: a HTML-vezérlőkaraktereket ártalmatlanítjuk és
+  // hosszt korlátozunk, mielőtt az adat az EmailJS (esetleg HTML) sablonjába
+  // kerül – így a felhasználói input nem injektálhat HTML/scriptet a levélbe.
+  const sanitize = (value: string, maxLen = 2000): string =>
+    value
+      .slice(0, maxLen)
+      .replace(/[<>]/g, (ch) => (ch === '<' ? '&lt;' : '&gt;'))
+      .trim();
+
   // reCAPTCHA v3 script előtöltése (ha be van állítva a Site Key), hogy a
   // token lekérése azonnali legyen küldéskor. Ha nincs beállítva, no-op.
   useEffect(() => {
@@ -44,7 +53,7 @@ export default function Contact() {
   const quoteDetailsText = (): string => {
     if (!quote) return 'Az ügyfél nem csatolt árkalkulációt.';
     const lines = quote.rooms.map(
-      (r) => `• ${r.name} (${r.dimensions}, állapot: ${r.condition}) – ${formatHuf(r.total)}`,
+      (r) => `• ${sanitize(r.name, 60)} (${r.dimensions}, állapot: ${r.condition}) – ${formatHuf(r.total)}`,
     );
     return [
       `Szobák száma: ${quote.roomCount}`,
@@ -63,12 +72,12 @@ export default function Contact() {
 
     // Demó mód: ha nincsenek beállítva a valós EmailJS azonosítók, nem
     // küldünk valódi levelet, csak sikeres visszajelzést adunk.
+    // (Nem logolunk űrlapadatot – PII nem kerülhet a konzolba.)
     if (!isEmailConfigured()) {
-      // eslint-disable-next-line no-console
-      console.info('[Demó] EmailJS nincs beállítva – a levél nem került elküldésre.', {
-        form,
-        quote,
-      });
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.info('[Demó] EmailJS nincs beállítva – a levél nem került elküldésre.');
+      }
       window.setTimeout(() => setStatus('success'), 600);
       return;
     }
@@ -82,11 +91,11 @@ export default function Contact() {
       // megy – ezt az EmailJS a Secret Key-jel szerveroldalon ellenőrzi.
       const templateParams = {
         to_email: EMAIL_CONFIG.adminEmail, // admin értesítő címzettje
-        from_name: form.name,
-        from_phone: form.phone,
-        from_email: form.email,
-        reply_to: form.email, // rá tudunk válaszolni az admin levélből
-        message: form.message,
+        from_name: sanitize(form.name, 120),
+        from_phone: sanitize(form.phone, 40),
+        from_email: sanitize(form.email, 160),
+        reply_to: sanitize(form.email, 160), // rá tudunk válaszolni az admin levélből
+        message: sanitize(form.message, 2000),
         quote_details: quoteDetailsText(),
         ...(recaptchaToken ? { 'g-recaptcha-response': recaptchaToken } : {}),
       };
@@ -99,16 +108,21 @@ export default function Contact() {
       // 2) Auto-reply az ügyfélnek (ha megadott e-mailt).
       if (form.email) {
         await emailjs.send(EMAIL_CONFIG.serviceId, EMAIL_CONFIG.autoReplyTemplateId, {
-          to_email: form.email,
-          to_name: form.name,
+          to_email: sanitize(form.email, 160),
+          to_name: sanitize(form.name, 120),
           quote_details: quoteDetailsText(),
         });
       }
 
       setStatus('success');
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('EmailJS küldési hiba:', err);
+      // Éles környezetben NEM logolunk stack trace-t / nyers hibát a konzolba;
+      // a felhasználó a barátságos hiba-fallback UI-t látja. Fejlesztéskor
+      // (DEV) a hiba kiírható a diagnosztikához.
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error('EmailJS küldési hiba:', err);
+      }
       setStatus('error');
     }
   };
@@ -256,6 +270,7 @@ export default function Contact() {
                   id="name"
                   type="text"
                   required
+                  maxLength={120}
                   value={form.name}
                   onChange={(e) => update('name', e.target.value)}
                   placeholder="Kovács János"
@@ -271,6 +286,7 @@ export default function Contact() {
                     id="phone"
                     type="tel"
                     required
+                    maxLength={40}
                     value={form.phone}
                     onChange={(e) => update('phone', e.target.value)}
                     placeholder="+36 30 123 4567"
@@ -285,6 +301,7 @@ export default function Contact() {
                     id="email"
                     type="email"
                     required
+                    maxLength={160}
                     value={form.email}
                     onChange={(e) => update('email', e.target.value)}
                     placeholder="janos@example.hu"
@@ -300,6 +317,7 @@ export default function Contact() {
                   id="message"
                   rows={4}
                   required
+                  maxLength={2000}
                   value={form.message}
                   onChange={(e) => update('message', e.target.value)}
                   placeholder="Írja le röviden, milyen munkában segíthetünk..."
