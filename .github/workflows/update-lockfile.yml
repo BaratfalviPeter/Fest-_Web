@@ -1,0 +1,48 @@
+name: Update package-lock.json
+
+# A lockfile-t a GitHub szerverein generáljuk (ahol van npm registry-elérés),
+# és visszacommitoljuk a main-re. Így a package-lock.json helyes integritás-
+# hash-ekkel jön létre, és a Dependabot/`npm ci` pontosan dolgozhat vele.
+#
+# Indítás: kézzel (workflow_dispatch), vagy ha a package.json változik a main-en.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-lockfile
+  cancel-in-progress: false
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Lockfile generálása (telepítés nélkül)
+        run: npm install --package-lock-only
+
+      - name: Commit, ha változott a lockfile
+        run: |
+          if [ -n "$(git status --porcelain package-lock.json)" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore: package-lock.json frissítése [skip ci]"
+            git push
+          else
+            echo "A lockfile naprakész, nincs teendő."
+          fi
