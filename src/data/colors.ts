@@ -9,9 +9,12 @@
 
 export {
   PAINT_BRANDS,
+  MOODS,
   type ColorCategory,
   type PaintColor,
   type PaintBrand,
+  type Mood,
+  type MoodTag,
 } from '../config/colorsConfig';
 import { PAINT_BRANDS, type ColorCategory, type PaintBrand } from '../config/colorsConfig';
 
